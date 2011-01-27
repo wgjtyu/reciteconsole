@@ -1,0 +1,14 @@
+        {% if noreciterecord %}
+        <div>恭喜，没有可供测试的条目:-)</div>
+        <br>
+        {% else %}
+            <form action="/m/recite" method="post">
+	        {% for reciterecord in reciterecords %}
+                <div><select name="{{reciterecord.witem.eword}}">
+                    <option value="off">{{reciterecord.witem.eword}}
+                    <option value="on">{{reciterecord.witem.cword}}
+                </select></div>
+	        {% endfor %}
+                <div><input type="submit" value="确认"></div>
+            </form>
+        {% endif %}

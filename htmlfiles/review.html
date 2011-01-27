@@ -1,0 +1,9 @@
+        {% if noreviewrecord %}
+        <div>恭喜，没有需要复习的条目:-)</div>
+        <br>
+        {% else %}
+	    {% for reviewrecord in reviewrecords %}
+                <div> {{reviewrecord.witem.eword}} [{{reviewrecord.witem.spell}}]</div>
+                <div> {{reviewrecord.witem.cword}} </div>
+	    {% endfor %}
+        {% endif %}

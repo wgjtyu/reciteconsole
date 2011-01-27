@@ -1,0 +1,10 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head><meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<link type="text/css" rel="stylesheet" href="/staticfiles/main.css"/>
+        <title>reciteconsole</title>
+    </head>
+    <body>
+    {% if user %}
+        <p>欢迎 <a href="/m/user">{{ user.nickname }}</a></p>
+    {% endif %}

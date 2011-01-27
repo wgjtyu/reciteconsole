@@ -1,0 +1,13 @@
+        <form action="/m/addword" method="post">
+            <div>
+                词库记录的格式为(每条记录占一行)<br>
+                word|n.解释
+            </div>
+            <div>
+                <textarea name="wordrecord" rows="5" cols="40"></textarea>
+            </div>
+            <div><input type="submit" value="添加"></div>
+        </form>
+        {% if addsucc %}
+            <p>成功添加</p>
+        {% endif %}
