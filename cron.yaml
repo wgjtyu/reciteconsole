@@ -1,0 +1,4 @@
+cron:
+- description: remove old review records
+  url: /cleanup
+  schedule: every 1 hours synchronized
