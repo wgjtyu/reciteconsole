@@ -7,9 +7,13 @@ handlers:
 - url: /staticfiles
   static_dir: staticfiles
 
-- url: /favicon.ico
-  static_files: /staticfiles/favicon.ico
-  upload: /staticfiles/favicon.ico
+- url: /favicon\.ico
+  static_files: staticfiles/favicon.ico
+  upload: staticfiles/favicon.ico
+
+- url: /cleanup
+  script: main.py
+  login: admin
 
 - url: /m/admin
   script: admin.py

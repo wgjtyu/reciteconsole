@@ -9,13 +9,28 @@ from google.appengine.api import users
 class HelpMSG(db.Model):
     content=db.StringProperty(multiline=True)
 
-#在建立用户数据时判断用户是否可以登录
-class ValidUser(db.Model):
-    email=db.EmailProperty()
-
 #用来保存用户数据
-class UserData(db.Model):
-    userid=db.StringProperty()
+class UserPrefs(db.Model):
+    user=db.UserProperty(auto_current_user_add=True)
+    tz_offset=db.IntegerProperty(default=0)
+
+def get_user_date(user_id=None):
+    userprefs=get_userprefs(user_id)
+    now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
+    today=now.date()
+    return today
+
+def get_userprefs(user_id=None):
+    if not user_id:
+        user=users.get_current_user()
+        if not user:
+            return None
+        user_id=user.user_id()
+    key=db.Key.from_path('UserPrefs',user_id)
+    userprefs=db.get(key)
+    if not userprefs:
+        userprefs=UserPrefs(key_name=user_id)
+    return userprefs
 
 class WordItem(db.Model):
     eword=db.StringProperty(multiline=False)
@@ -26,13 +41,13 @@ class WordItem(db.Model):
 
 class ReviewRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
-    user=db.UserProperty()
+    user=db.UserProperty(auto_current_user_add=True)
     reviewdate=db.DateProperty()
     reviewed=db.BooleanProperty()
     def create(self,worditem,delay):
         self.witem=worditem.key()
         self.user=users.get_current_user()
-        self.reviewdate=date.today()+timedelta(delay)
+        self.reviewdate=get_user_date()+timedelta(delay)
         self.reviewed=False
         self.put()
 
@@ -48,7 +63,7 @@ class ReciteRecord(db.Model):
         self.witem=worditem.key()
         self.user=users.get_current_user()
         self.rp=0.0
-        self.recitedate=date.today()
+        self.recitedate=get_user_date()
         self.reval=2
         self.rtotal=0
         self.rfailure=0
@@ -56,15 +71,15 @@ class ReciteRecord(db.Model):
     def set(self,delta):
         self.rp=self.rp*0.7+0.3*delta
         self.rtotal=self.rtotal+1
+        rc=ReviewRecord()
         if delta:
-            #this formula should be check again!
             self.reval=self.reval+int(1+self.rp)*2**int(self.rtotal-self.rfailure)
+            rc.create(self.witem,self.reval/2)
         else:
-            rc=ReviewRecord()
             rc.create(self.witem,0)
             self.reval=1
             self.rfailure=self.rfailure+1
-        self.recitedate=date.today()+timedelta(self.reval)
+        self.recitedate=get_user_date()+timedelta(self.reval)
         self.put()
 
 class LastRecite(db.Model):

@@ -1,1 +1,10 @@
-w
+<div>
+    这里将显示个人信息
+</div>
+<form action="/m/user" method="post">
+    <div>
+        设置您的时区:
+        <input type="text" name="timezone" value='{{tz_offset}}'>
+    </div>
+    <input type="submit" value="保存个人设置">
+</form>

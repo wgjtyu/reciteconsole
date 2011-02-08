@@ -14,3 +14,13 @@ indexes:
   properties:
   - name: user
   - name: recitedate
+
+- kind: ReviewRecord
+  properties:
+  - name: user
+  - name: reviewdate
+
+- kind: ReviewRecord
+  properties:
+  - name: reviewed
+  - name: reviewdate

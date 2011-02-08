@@ -13,7 +13,10 @@ def getText(nodelist):
 
 def GetPS(word):
     url='http://dict.cn/ws.php?utf8=true&q=%s' % word
-    explanation=urlfetch.fetch(url).content
+    try:
+        explanation=urlfetch.fetch(url).content
+    except:
+        return 'None'
     if explanation.find(r'<pron>')==-1:
         return 'None'
     explanation=explanation[explanation.find(r'<pron>')+6:explanation.find(r'</pron>')]

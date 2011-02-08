@@ -18,7 +18,6 @@
 import cgi
 import datetime
 import os
-from xml.dom import minidom
 from store import *
 from generic import *
 from google.appengine.api import users
@@ -40,13 +39,22 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 class UserInfo(webapp.RequestHandler):
+    def post(self):
+        userprefs=get_userprefs()
+        userprefs.tz_offset=int(self.request.get('timezone'))
+        userprefs.put()
+        self.redirect('/m')
     def get(self):
         self.response.out.write(GetHead())
         if not users.get_current_user():
             self.redirect(users.create_login_url(self.request.uri))
         user=users.get_current_user()
-        self.response.out.write("这里将会显示一些个人信息 <br>")
-        path=os.path.join(orig_path,'index.html')
+        path=os.path.join(orig_path,'user.html')
+        tz_offset=get_userprefs().tz_offset
+        tv={
+            'tz_offset':tz_offset
+        }
+        self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
 
 class Addword(webapp.RequestHandler):
@@ -95,15 +103,17 @@ class Recite(webapp.RequestHandler):
         for i in lastrecites:
             if self.request.get(i.ritem.witem.eword)=='on': #remember
                 delta=1
-            else: #forgot
+            elif self.request.get(i.ritem.witem.eword)=='off': #forgot
                 delta=0
+            else:
+                continue
             i.ritem.set(delta)
-            self.redirect("/m/recite")
+        self.redirect("/m/recite")
     def get(self):
         if not users.get_current_user():
             self.redirect("/m")
         self.response.out.write(GetHead())
-        reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),datetime.date.today())
+        reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         if reciterecords.count()==0:
             wordquery=WordItem.all()
             i=5
@@ -120,7 +130,7 @@ class Recite(webapp.RequestHandler):
                     reciterecord=ReciteRecord()
                     reciterecord.create(word)
                     i=i-1
-            reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),datetime.date.today())
+            reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         noreciterecord=False
         if reciterecords.count()==0:
             noreciterecord=True
@@ -147,15 +157,14 @@ class Review(webapp.RequestHandler):
         if not users.get_current_user():
             self.redirect('/m')
         self.response.out.write(GetHead())
-        reviewrecords=db.GqlQuery("SELECT * FROM ReviewRecord Where user=:1 and reviewdate=:2",users.get_current_user(),datetime.date.today())
+        reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2 LIMIT 25",users.get_current_user(),get_user_date())
         noreviewrecord=False
         for i in reviewrecords:
             i.reviewed=True
             if not (i.witem.spell and i.witem.spell!='None'):
-                #得到拼写
-                i.witem.spell=GetPS(i.witem.eword).decode('utf8')
-                #self.response.out.write(i.witem.spell)
+                i.witem.spell=GetPS(i.witem.eword).decode('utf8')#得到拼写
                 i.witem.put()
+            i.put()
         if reviewrecords.count()==0:
             noreviewrecord=True
         tv= {

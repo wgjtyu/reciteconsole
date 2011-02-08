@@ -34,8 +34,15 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
+class CleanUp(webapp.RequestHandler):
+    def get(self):
+        pass
+        reviewrecords=ReviewRecord.gql('WHERE reviewdate < :1 AND reviewed=True',get_user_date())
+        for i in reviewrecords:
+            i.delete()
+
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)], debug=True)
+    application = webapp.WSGIApplication([('/', MainHandler),('/cleanup',CleanUp)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':
