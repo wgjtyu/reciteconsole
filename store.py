@@ -13,6 +13,7 @@ class HelpMSG(db.Model):
 class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
     tz_offset=db.IntegerProperty(default=0)
+    reviewed=db.BooleanProperty()
 
 def get_user_date(user_id=None):
     userprefs=get_userprefs(user_id)

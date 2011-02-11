@@ -156,11 +156,18 @@ class Review(webapp.RequestHandler):
     def get(self):
         if not users.get_current_user():
             self.redirect('/m')
+        userprefs=get_userprefs()
+        #if userprefs.userprefs.reviewed==False:
+        userprefs.reviewed=True
+        userprefs.put()
         self.response.out.write(GetHead())
         reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2 LIMIT 25",users.get_current_user(),get_user_date())
         noreviewrecord=False
         for i in reviewrecords:
-            i.reviewed=True
+            if i.reviewed==False:
+                i.reviewed=True
+                if i.reviewdate<get_user_date():
+                    i.reviewdate=get_user_date
             if not (i.witem.spell and i.witem.spell!='None'):
                 i.witem.spell=GetPS(i.witem.eword).decode('utf8')#得到拼写
                 i.witem.put()

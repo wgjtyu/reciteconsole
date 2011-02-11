@@ -36,10 +36,13 @@ class MainHandler(webapp.RequestHandler):
 
 class CleanUp(webapp.RequestHandler):
     def get(self):
-        pass
-        reviewrecords=ReviewRecord.gql('WHERE reviewdate < :1 AND reviewed=True',get_user_date())
-        for i in reviewrecords:
-            i.delete()
+        revieweduserprefs=UserPrefs.gql("WHERE reviewed=True")
+        for userpref in revieweduserprefs:
+            reviewrecords=ReviewRecord.gql('WHERE reviewdate < :1 AND user= :2 AND reviewed=True',get_user_date(userpref.user.user_id()),userpref.user)
+            userpref.reviewed=False
+            userpref.put()
+            for i in reviewrecords:
+                    i.delete()
 
 def main():
     application = webapp.WSGIApplication([('/', MainHandler),('/cleanup',CleanUp)], debug=True)
