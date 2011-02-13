@@ -24,3 +24,9 @@ indexes:
   properties:
   - name: reviewed
   - name: reviewdate
+
+- kind: ReviewRecord
+  properties:
+  - name: reviewed
+  - name: user
+  - name: reviewdate

@@ -4,6 +4,7 @@ from datetime import date
 from datetime import timedelta
 from google.appengine.ext import db
 from google.appengine.api import users
+from google.appengine.api import memcache
 
 #保存帮助内容
 class HelpMSG(db.Model):
@@ -14,6 +15,13 @@ class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
     tz_offset=db.IntegerProperty(default=0)
     reviewed=db.BooleanProperty()
+
+    def cache_set(self):
+        memcache.set(self.key().name(),self,namespace=self.key().kind())
+
+    def put(self):
+        self.cache_set()
+        db.Model.put(self)
 
 def get_user_date(user_id=None):
     userprefs=get_userprefs(user_id)
@@ -27,10 +35,14 @@ def get_userprefs(user_id=None):
         if not user:
             return None
         user_id=user.user_id()
-    key=db.Key.from_path('UserPrefs',user_id)
-    userprefs=db.get(key)
+        userprefs=memcache.get(user_id,namespace='UserPrefs')
     if not userprefs:
-        userprefs=UserPrefs(key_name=user_id)
+        key=db.Key.from_path('UserPrefs',user_id)
+        userprefs=db.get(key)
+        if userprefs:
+            userprefs.cache_set()
+        else:
+            userprefs=UserPrefs(key_name=user_id)
     return userprefs
 
 class WordItem(db.Model):

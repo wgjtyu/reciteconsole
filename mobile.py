@@ -167,7 +167,7 @@ class Review(webapp.RequestHandler):
             if i.reviewed==False:
                 i.reviewed=True
                 if i.reviewdate<get_user_date():
-                    i.reviewdate=get_user_date
+                    i.reviewdate=get_user_date()
             if not (i.witem.spell and i.witem.spell!='None'):
                 i.witem.spell=GetPS(i.witem.eword).decode('utf8')#得到拼写
                 i.witem.put()
