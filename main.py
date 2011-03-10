@@ -18,7 +18,7 @@
 import cgi
 import datetime
 import os
-from xml.dom import minidom
+import logging
 from store import *
 from generic import *
 from google.appengine.api import users
@@ -27,6 +27,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
+from google.appengine.api import mail
 
 orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/')
 
@@ -34,18 +35,29 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
-class CleanUp(webapp.RequestHandler):
+class DailyJobs(webapp.RequestHandler):
     def get(self):
         revieweduserprefs=UserPrefs.gql("WHERE reviewed=True")
+        num=0
         for userpref in revieweduserprefs:
-            reviewrecords=ReviewRecord.gql('WHERE reviewdate < :1 AND user= :2 AND reviewed=True',get_user_date(userpref.user.user_id()),userpref.user)
-            userpref.reviewed=False
-            userpref.put()
+            reviewrecords=ReviewRecord.gql('WHERE user= :1 AND reviewdate < :2 AND reviewed=True',userpref.user,get_user_date(userpref.user.user_id()))
+            if reviewrecords.count()==0:
+                continue
+            logging.info("USER:%s" % userpref.user.nickname())
+            usernum=0
             for i in reviewrecords:
-                    i.delete()
+                userpref.reviewed=False
+                userpref.put()
+                usernum=usernum+1
+                i.delete()
+            logging.info("Deleted %d review logs" % usernum)
+            num=num+usernum
+            #呼叫发送复习记录邮件程序
+        logging.info('Totally deleted %d review logs.' % num)
+        self.response.out.write('Deleted %d logs.' % num)
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler),('/cleanup',CleanUp)], debug=True)
+    application = webapp.WSGIApplication([('/', MainHandler),('/dailyjobs',DailyJobs)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':

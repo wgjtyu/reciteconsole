@@ -1,4 +1,4 @@
 cron:
-- description: remove old review records
-  url: /cleanup
+- description: remove old review records and send review records to user
+  url: /dailyjobs
   schedule: every 1 hours synchronized

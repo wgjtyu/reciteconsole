@@ -1,4 +1,6 @@
 import os
+import datetime
+from store import *
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from google.appengine.api import urlfetch
@@ -41,12 +43,18 @@ def GetBottom(requesturi):
     url=users.create_login_url(requesturi)
     if users.get_current_user():
         userlogin=True
+        userprefs=get_userprefs()
+        now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
+        #usertime=datetime.time.strftime('%Y-%m-%d %H:%M:%S %a',now)
         url=users.create_logout_url(requesturi)
         if users.is_current_user_admin():
             useradmin=True
+    else:
+        now=None
     tv= {
         'userlogin':userlogin,
         'useradmin':useradmin,
+        'usertime':now,
         'url':url
     }
     path=os.path.join(orig_path,'bottom.html')

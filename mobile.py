@@ -161,7 +161,7 @@ class Review(webapp.RequestHandler):
         userprefs.reviewed=True
         userprefs.put()
         self.response.out.write(GetHead())
-        reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2 LIMIT 25",users.get_current_user(),get_user_date())
+        reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",users.get_current_user(),get_user_date())
         noreviewrecord=False
         for i in reviewrecords:
             if i.reviewed==False:

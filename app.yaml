@@ -11,7 +11,7 @@ handlers:
   static_files: staticfiles/favicon.ico
   upload: staticfiles/favicon.ico
 
-- url: /cleanup
+- url: /dailyjobs
   script: main.py
   login: admin
 

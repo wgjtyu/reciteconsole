@@ -35,7 +35,7 @@ def get_userprefs(user_id=None):
         if not user:
             return None
         user_id=user.user_id()
-        userprefs=memcache.get(user_id,namespace='UserPrefs')
+    userprefs=memcache.get(user_id,namespace='UserPrefs')
     if not userprefs:
         key=db.Key.from_path('UserPrefs',user_id)
         userprefs=db.get(key)
@@ -89,8 +89,8 @@ class ReciteRecord(db.Model):
             self.reval=self.reval+int(1+self.rp)*2**int(self.rtotal-self.rfailure)
             rc.create(self.witem,self.reval/2)
         else:
-            rc.create(self.witem,0)
-            self.reval=1
+            rc.create(self.witem,1)
+            self.reval=2
             self.rfailure=self.rfailure+1
         self.recitedate=get_user_date()+timedelta(self.reval)
         self.put()
