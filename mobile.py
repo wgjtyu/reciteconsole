@@ -161,6 +161,9 @@ class Review(webapp.RequestHandler):
         userprefs.reviewed=True
         userprefs.put()
         self.response.out.write(GetHead())
+        #try:
+            #reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2 ORDER BY rp DESC",users.get_current_user(),get_user_date())
+        #except BadArgumentError:
         reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",users.get_current_user(),get_user_date())
         noreviewrecord=False
         for i in reviewrecords:
@@ -231,7 +234,7 @@ class Help(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 def main():
-    application = webapp.WSGIApplication([('/m', MainHandler),('/m/addword',Addword),('/m/recite',Recite),('/m/review',Review),('/m/query',Query),('/m/help',Help),('/m/user',UserInfo)], debug=True)
+    application = webapp.WSGIApplication([('/m', MainHandler),('/m/addword',Addword),('/m/recite',Recite),('/m/review',Review),('/m/query',Query),('/m/help',Help),('/m/user',UserInfo)], debug=False)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':

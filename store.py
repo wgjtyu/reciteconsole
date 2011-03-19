@@ -56,12 +56,14 @@ class ReviewRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
     user=db.UserProperty(auto_current_user_add=True)
     reviewdate=db.DateProperty()
+    rp=db.FloatProperty(default=0)
     reviewed=db.BooleanProperty()
-    def create(self,worditem,delay):
+    def create(self,worditem,delay,rp):
         self.witem=worditem.key()
         self.user=users.get_current_user()
         self.reviewdate=get_user_date()+timedelta(delay)
         self.reviewed=False
+        self.rp=rp
         self.put()
 
 class ReciteRecord(db.Model):
@@ -87,9 +89,10 @@ class ReciteRecord(db.Model):
         rc=ReviewRecord()
         if delta:
             self.reval=self.reval+int(1+self.rp)*2**int(self.rtotal-self.rfailure)
-            rc.create(self.witem,self.reval/2)
+            if self.rp<0.75:
+                rc.create(self.witem,self.reval/2,self.rp)
         else:
-            rc.create(self.witem,1)
+            rc.create(self.witem,1,self.rp)
             self.reval=2
             self.rfailure=self.rfailure+1
         self.recitedate=get_user_date()+timedelta(self.reval)
