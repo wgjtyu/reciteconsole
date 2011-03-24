@@ -234,7 +234,7 @@ class Help(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 def main():
-    application = webapp.WSGIApplication([('/m', MainHandler),('/m/addword',Addword),('/m/recite',Recite),('/m/review',Review),('/m/query',Query),('/m/help',Help),('/m/user',UserInfo)], debug=False)
+    application = webapp.WSGIApplication([('/m', MainHandler),('/m/addword',Addword),('/m/recite',Recite),('/m/review',Review),('/m/query',Query),('/m/help',Help),('/m/user',UserInfo)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':

@@ -57,7 +57,7 @@ class DailyJobs(webapp.RequestHandler):
         self.response.out.write('Deleted %d logs.' % num)
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler),('/dailyjobs',DailyJobs)], debug=False)
+    application = webapp.WSGIApplication([('/', MainHandler),('/dailyjobs',DailyJobs)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':
