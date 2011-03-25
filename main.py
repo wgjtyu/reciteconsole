@@ -52,7 +52,23 @@ class DailyJobs(webapp.RequestHandler):
                 i.delete()
             logging.info("Deleted %d review logs" % usernum)
             num=num+usernum
+
             #呼叫发送复习记录邮件程序
+            if userpref.sendreviewmail==False:
+                continue
+            userpref.reviewed=True
+            userpref.put()
+            reviewrecords=ReviewRecord.gql('WHERE user=:1 AND reviewdate=:2',userpref.user,get_user_next_date(userpref.user.user_id()))
+            messagebody=''
+            for i in reviewrecords:
+                messagebody=messagebody+i.witem.eword+'['+i.witem.spell+']'+i.witem.cword
+                i.reviewed=True
+                i.put()
+            mail.send_mail(
+                    sender='ReciteConsole<wgjtyu@gmail.com>',
+                    to=userpref.user.email(),
+                    subject="Today's Review Records",
+                    body=messagebody)
         logging.info('Totally deleted %d review logs.' % num)
         self.response.out.write('Deleted %d logs.' % num)
 

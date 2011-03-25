@@ -15,6 +15,7 @@ class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
     tz_offset=db.IntegerProperty(default=0)
     reviewed=db.BooleanProperty()
+    sendreviewmail=db.BooleanProperty(default=True)
 
     def cache_set(self):
         memcache.set(self.key().name(),self,namespace=self.key().kind())
@@ -28,6 +29,11 @@ def get_user_date(user_id=None):
     now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
     today=now.date()
     return today
+
+def get_user_next_date(user_id):
+    userprefs=get_userprefs(user_id)
+    nextdate=datetime.datetime.now()+datetime.timedelta(days=1+userprefs.tz_offset)
+    return nextdate.date()
 
 def get_userprefs(user_id=None):
     if not user_id:
@@ -49,6 +55,7 @@ class WordItem(db.Model):
     eword=db.StringProperty(multiline=False)
     cword=db.StringProperty(multiline=False)
     spell=db.StringProperty(multiline=False)
+    checked=db.BooleanProperty(default=False)
     adddate=db.DateTimeProperty(auto_now_add=True)
     addby=db.UserProperty()
 
@@ -56,7 +63,7 @@ class ReviewRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
     user=db.UserProperty(auto_current_user_add=True)
     reviewdate=db.DateProperty()
-    rp=db.FloatProperty(default=0)
+    rp=db.FloatProperty(default=0.0)
     reviewed=db.BooleanProperty()
     def create(self,worditem,delay,rp):
         self.witem=worditem.key()
