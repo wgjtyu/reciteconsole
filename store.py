@@ -30,11 +30,6 @@ def get_user_date(user_id=None):
     today=now.date()
     return today
 
-def get_user_next_date(user_id):
-    userprefs=get_userprefs(user_id)
-    nextdate=datetime.datetime.now()+datetime.timedelta(days=1+userprefs.tz_offset)
-    return nextdate.date()
-
 def get_userprefs(user_id=None):
     if not user_id:
         user=users.get_current_user()

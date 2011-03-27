@@ -58,9 +58,9 @@ class DailyJobs(webapp.RequestHandler):
                 continue
             userpref.reviewed=True
             userpref.put()
-            reviewrecords=ReviewRecord.gql('WHERE user=:1 AND reviewdate=:2',userpref.user,get_user_next_date(userpref.user.user_id()))
+            sendreviewrecords=ReviewRecord.gql('WHERE user=:1 AND reviewdate=:2',userpref.user,get_user_date(userpref.user.user_id()))
             messagebody=''
-            for i in reviewrecords:
+            for i in sendreviewrecords:
                 messagebody=messagebody+i.witem.eword+'['+i.witem.spell+']'+i.witem.cword
                 i.reviewed=True
                 i.put()
@@ -69,6 +69,7 @@ class DailyJobs(webapp.RequestHandler):
                     to=userpref.user.email(),
                     subject="Today's Review Records",
                     body=messagebody)
+            logging.info('also send review records to his mailbox')
         logging.info('Totally deleted %d review logs.' % num)
         self.response.out.write('Deleted %d logs.' % num)
 
