@@ -13,6 +13,7 @@ def getText(nodelist):
             rc.append(node.data)
     return ''.join(rc)
 
+#得到单词的音标
 def GetPS(word):
     url='http://dict.cn/ws.php?utf8=true&q=%s' % word
     try:

@@ -42,6 +42,11 @@ class UserInfo(webapp.RequestHandler):
     def post(self):
         userprefs=get_userprefs()
         userprefs.tz_offset=int(self.request.get('timezone'))
+        if 'rvmail' in self.request.get('rvmail'):
+            sendreviewmail=True
+        else:
+            sendreviewmail=False
+        userprefs.sendreviewmail=sendreviewmail
         userprefs.put()
         self.redirect('/m')
     def get(self):
@@ -51,8 +56,13 @@ class UserInfo(webapp.RequestHandler):
         user=users.get_current_user()
         path=os.path.join(orig_path,'user.html')
         tz_offset=get_userprefs().tz_offset
+        if get_userprefs().sendreviewmail:
+            rvmail='checked'
+        else:
+            rvmail=''
         tv={
-            'tz_offset':tz_offset
+            'tz_offset':tz_offset,
+            'rvmail':rvmail
         }
         self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
@@ -173,6 +183,8 @@ class Review(webapp.RequestHandler):
                     i.reviewdate=get_user_date()
             if not (i.witem.spell and i.witem.spell!='None'):
                 i.witem.spell=GetPS(i.witem.eword).decode('utf8')#得到拼写
+                if i.witem.spell==None:
+                    i.witem.spell='None'
                 i.witem.put()
             i.put()
         if reviewrecords.count()==0:

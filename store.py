@@ -53,6 +53,7 @@ class WordItem(db.Model):
     checked=db.BooleanProperty(default=False)
     adddate=db.DateTimeProperty(auto_now_add=True)
     addby=db.UserProperty()
+    sentence=db.ListProperty(db.Key)#指向包含此单词的句子
 
 class ReviewRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
@@ -107,3 +108,7 @@ class LastRecite(db.Model):
 class LastReview(db.Model):
     ritem=db.ReferenceProperty(ReciteRecord)
     user=db.UserProperty()
+
+class Sentence(db.Model):
+    content=db.StringProperty(multiline=False)#英文
+    translation=db.StringProperty(multiline=False)#中文
