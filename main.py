@@ -35,6 +35,11 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
+#处理添加单词到发送邮件等各种任务，通过缩小任务量来避免
+class TaskMan(webapp.RequestHandler):
+    def get(self):
+        pass
+
 class DailyJobs(webapp.RequestHandler):
     def get(self):
         revieweduserprefs=UserPrefs.gql("WHERE reviewed=True")
@@ -44,14 +49,15 @@ class DailyJobs(webapp.RequestHandler):
             if reviewrecords.count()==0:
                 continue
             logging.info("USER:%s" % userpref.user.nickname())
-            usernum=0
+            reviewnum=0
+            userpref.reviewed=False
+            userpref.sendreviewmail=False
+            userpref.put()
             for i in reviewrecords:
-                userpref.reviewed=False
-                userpref.put()
-                usernum=usernum+1
+                reviewnum=reviewnum+1
                 i.delete()
-            logging.info("Deleted %d review logs" % usernum)
-            num=num+usernum
+            logging.info("Deleted %d review logs" % reviewnum)
+            num=num+reviewnum
 
             #呼叫发送复习记录邮件程序
             if userpref.sendreviewmail==False:

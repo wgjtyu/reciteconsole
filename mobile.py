@@ -75,19 +75,19 @@ class Addword(webapp.RequestHandler):
         l=0
         if wordset.__len__()==0:
             self.redirect('/addword')
-        worditems=wordset.split('\n')
-        for i in worditems:
-            w=i.split('|')
-            if w.__len__()!=2:
-                break
-            worditem=WordItem()
-            worditem.eword=w[0]
-            worditem.cword=w[1]
-            worditem.addby=users.get_current_user()
-            worditem.put()
-            template_values= {
-                'addsucc':True,
-            }
+        #worditems=wordset.split('\n')
+        #for i in worditems:
+            #w=i.split('|')
+            #if w.__len__()!=2:
+                #break
+            #worditem=WordItem()
+            #worditem.eword=w[0]
+            #worditem.cword=w[1]
+            #worditem.addby=users.get_current_user()
+            #worditem.put()
+            #template_values= {
+                #'addsucc':True,
+            #}
         path=os.path.join(orig_path,'addword.html')
         self.response.out.write(GetHead())
         self.response.out.write(template.render(path,template_values))

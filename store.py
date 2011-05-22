@@ -47,10 +47,13 @@ def get_userprefs(user_id=None):
     return userprefs
 
 class WordItem(db.Model):
-    eword=db.StringProperty(multiline=False)
-    cword=db.StringProperty(multiline=False)
-    spell=db.StringProperty(multiline=False)
+    eword=db.StringProperty(multiline=False)#英文
+    cword=db.StringProperty(multiline=False)#中文
+    spell=db.StringProperty(multiline=False)#音标
+
+    #在导入单词后可能因此导入重复的词，这个标记表示该单词已经经过人工检查,没有重复
     checked=db.BooleanProperty(default=False)
+    
     adddate=db.DateTimeProperty(auto_now_add=True)
     addby=db.UserProperty()
     sentence=db.ListProperty(db.Key)#指向包含此单词的句子
@@ -112,3 +115,7 @@ class LastReview(db.Model):
 class Sentence(db.Model):
     content=db.StringProperty(multiline=False)#英文
     translation=db.StringProperty(multiline=False)#中文
+
+class task(db.Model):
+    type=db.StringProperty(multiline=False)
+    data=db.StringProperty(multiline=True)
