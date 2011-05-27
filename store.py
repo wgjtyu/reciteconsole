@@ -94,7 +94,7 @@ class ReciteRecord(db.Model):
         self.rfailure=0
         self.put()
     def set(self,delta):
-        user_prefs=get_userprefs(self.user.user_id)
+        user_prefs=get_userprefs(self.user.user_id())
         self.rp=self.rp*0.7+0.3*delta
         self.rtotal=self.rtotal+1
         rc=ReviewRecord()
