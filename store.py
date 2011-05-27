@@ -10,12 +10,16 @@ from google.appengine.api import memcache
 class HelpMSG(db.Model):
     content=db.StringProperty(multiline=True)
 
-#用来保存用户数据
+#用来保存用户配置数据
 class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
-    tz_offset=db.IntegerProperty(default=0)
+    tz_offset=db.IntegerProperty(default=0)   #时区
     reviewed=db.BooleanProperty()
     sendreviewmail=db.BooleanProperty(default=True)
+    recitenum=db.IntegerProperty()
+
+    #记住的单词数量
+    totalrecite=db.IntegerProperty(default=0)
 
     def cache_set(self):
         memcache.set(self.key().name(),self,namespace=self.key().kind())
@@ -78,6 +82,7 @@ class ReciteRecord(db.Model):
     rp=db.FloatProperty()
     recitedate=db.DateProperty()
     reval=db.IntegerProperty()
+    recited=db.BooleanProperty()
     rtotal=db.IntegerProperty() #total recite times
     rfailure=db.IntegerProperty() #failure times
     def create(self,worditem):
@@ -96,7 +101,13 @@ class ReciteRecord(db.Model):
         if delta:
             self.reval=self.reval+int(1+self.rp)*2**int(self.rtotal-self.rfailure)
             if self.rp<0.75:
+                self.recited=False
                 rc.create(self.witem,self.reval/2,self.rp)
+            else:
+                if(self.recited==False):
+                    user_prefs=get_userprefs(self.user)
+                    user_prefs.totalrecite=user_prefs.totalrecite+1
+                    self.recited=True
         else:
             rc.create(self.witem,1,self.rp)
             self.reval=2
@@ -115,7 +126,3 @@ class LastReview(db.Model):
 class Sentence(db.Model):
     content=db.StringProperty(multiline=False)#英文
     translation=db.StringProperty(multiline=False)#中文
-
-class task(db.Model):
-    type=db.StringProperty(multiline=False)
-    data=db.StringProperty(multiline=True)

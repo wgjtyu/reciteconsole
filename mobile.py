@@ -55,54 +55,22 @@ class UserInfo(webapp.RequestHandler):
             self.redirect(users.create_login_url(self.request.uri))
         user=users.get_current_user()
         path=os.path.join(orig_path,'user.html')
-        tz_offset=get_userprefs().tz_offset
-        if get_userprefs().sendreviewmail:
+        user_prefs=get_userprefs()
+        tz_offset=user_prefs.tz_offset
+        if user_prefs.sendreviewmail:
             rvmail='checked'
         else:
             rvmail=''
+        if not user_prefs.recitenum:
+            user_prefs.recitenum=0
+            user_prefs.put()
+        recitenum=user_prefs.recitenum
         tv={
             'tz_offset':tz_offset,
-            'rvmail':rvmail
+            'rvmail':rvmail,
+            'recitenum':user_prefs.recitenum
         }
         self.response.out.write(template.render(path,tv))
-        self.response.out.write(GetBottom(self.request.uri))
-
-class Addword(webapp.RequestHandler):
-    def post(self):
-        if not users.is_current_user_admin():
-            self.redirect('/m')
-        wordset=self.request.get('wordrecord')
-        l=0
-        if wordset.__len__()==0:
-            self.redirect('/addword')
-        #worditems=wordset.split('\n')
-        #for i in worditems:
-            #w=i.split('|')
-            #if w.__len__()!=2:
-                #break
-            #worditem=WordItem()
-            #worditem.eword=w[0]
-            #worditem.cword=w[1]
-            #worditem.addby=users.get_current_user()
-            #worditem.put()
-            #template_values= {
-                #'addsucc':True,
-            #}
-        path=os.path.join(orig_path,'addword.html')
-        self.response.out.write(GetHead())
-        self.response.out.write(template.render(path,template_values))
-        self.response.out.write(GetBottom(self.request.uri))
-    def get(self):
-        if not users.get_current_user():
-            self.redirect('/m')
-        quiturl=users.create_logout_url(self.request.uri)
-        template_values= {
-            'addsucc':False,
-            'quiturl':quiturl
-        }
-        path=os.path.join(orig_path,'addword.html')
-        self.response.out.write(GetHead())
-        self.response.out.write(template.render(path,template_values))
         self.response.out.write(GetBottom(self.request.uri))
 
 class Recite(webapp.RequestHandler):
@@ -246,7 +214,7 @@ class Help(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 def main():
-    application = webapp.WSGIApplication([('/m', MainHandler),('/m/addword',Addword),('/m/recite',Recite),('/m/review',Review),('/m/query',Query),('/m/help',Help),('/m/user',UserInfo)], debug=True)
+    application = webapp.WSGIApplication([('/m', MainHandler),('/m/recite',Recite),('/m/review',Review),('/m/query',Query),('/m/help',Help),('/m/user',UserInfo)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':

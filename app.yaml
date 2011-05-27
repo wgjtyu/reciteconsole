@@ -19,6 +19,10 @@ handlers:
   script: admin.py
   login: admin
 
+- url: /m/addword
+  script: addword.py
+  login: admin
+
 - url: /m.*
   script: mobile.py
 

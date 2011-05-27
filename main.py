@@ -35,11 +35,6 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
-#处理添加单词到发送邮件等各种任务，通过缩小任务量来避免
-class TaskMan(webapp.RequestHandler):
-    def get(self):
-        pass
-
 class DailyJobs(webapp.RequestHandler):
     def get(self):
         revieweduserprefs=UserPrefs.gql("WHERE reviewed=True")
