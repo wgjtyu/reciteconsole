@@ -16,10 +16,9 @@ class UserPrefs(db.Model):
     tz_offset=db.IntegerProperty(default=0)   #时区
     reviewed=db.BooleanProperty()
     sendreviewmail=db.BooleanProperty(default=True)
-    recitenum=db.IntegerProperty()
 
     #记住的单词数量
-    totalrecite=db.IntegerProperty(default=0)
+    recitenum=db.IntegerProperty()
 
     def cache_set(self):
         memcache.set(self.key().name(),self,namespace=self.key().kind())
@@ -95,7 +94,7 @@ class ReciteRecord(db.Model):
         self.rfailure=0
         self.put()
     def set(self,delta):
-        user_prefs=get_userprefs(self.user)
+        user_prefs=get_userprefs(self.user.user_id)
         self.rp=self.rp*0.7+0.3*delta
         self.rtotal=self.rtotal+1
         rc=ReviewRecord()
