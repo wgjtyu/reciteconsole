@@ -79,12 +79,12 @@ class ReviewRecord(db.Model):
 class ReciteRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
     user=db.UserProperty()
-    rp=db.FloatProperty()
-    recitedate=db.DateProperty()
-    reval=db.IntegerProperty()
-    recited=db.BooleanProperty()
-    rtotal=db.IntegerProperty() #total recite times
-    rfailure=db.IntegerProperty() #failure times
+    rp=db.FloatProperty()         #记忆程度
+    recitedate=db.DateProperty()  #下次测试日期
+    reval=db.IntegerProperty()    #距下次测试间隔
+    recited=db.BooleanProperty()  #已经记住?
+    rtotal=db.IntegerProperty()   #总共测试次数
+    rfailure=db.IntegerProperty() #测试中失败的次数
     def create(self,worditem):
         self.witem=worditem.key()
         self.user=users.get_current_user()
@@ -95,23 +95,27 @@ class ReciteRecord(db.Model):
         self.rfailure=0
         self.put()
     def set(self,delta):
+        user_prefs=get_userprefs(self.user)
         self.rp=self.rp*0.7+0.3*delta
         self.rtotal=self.rtotal+1
         rc=ReviewRecord()
-        if delta:
+        if delta:#记住
             self.reval=self.reval+int(1+self.rp)*2**int(self.rtotal-self.rfailure)
             if self.rp<0.75:
-                self.recited=False
-                rc.create(self.witem,self.reval/2,self.rp)
+                rc.create(self.witem,self.reval/2,self.rp)#未熟记时才去复习
             else:
                 if(self.recited==False):
-                    user_prefs=get_userprefs(self.user)
-                    user_prefs.totalrecite=user_prefs.totalrecite+1
                     self.recited=True
-        else:
+                    user_prefs.recitenum=user_prefs.recitenum+1
+                    user_prefs.put()
+        else:#没记住
             rc.create(self.witem,1,self.rp)
             self.reval=2
             self.rfailure=self.rfailure+1
+            if self.recited==True and self.rp>=0.75:
+                self.recited=False
+                user_prefs.recitenum=user_prefs.recitenum-1
+                user_prefs.put()
         self.recitedate=get_user_date()+timedelta(self.reval)
         self.put()
 
