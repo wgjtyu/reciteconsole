@@ -98,10 +98,11 @@ class ReciteRecord(db.Model):
         self.rp=self.rp*0.7+0.3*delta
         self.rtotal=self.rtotal+1
         rc=ReviewRecord()
+        if not self.recited:
+            self.recited=False
         if delta:#记住
             self.reval=self.reval+int(1+self.rp)*2**int(self.rtotal-self.rfailure)
             if self.rp<0.75:
-                self.recited=False
                 rc.create(self.witem,self.reval/2,self.rp)#未熟记时才去复习
             else:
                 if(self.recited==False):
