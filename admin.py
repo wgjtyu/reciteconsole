@@ -33,8 +33,47 @@ class Admin(webapp.RequestHandler):
         self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
 
+class DailyJobs(webapp.RequestHandler):
+    def get(self):
+        revieweduserprefs=UserPrefs.gql("WHERE reviewed=True")
+        num=0
+        for userpref in revieweduserprefs:
+            reviewrecords=ReviewRecord.gql('WHERE user= :1 AND reviewdate < :2 AND reviewed=True',userpref.user,get_user_date(userpref.user.user_id()))
+            if reviewrecords.count()==0:
+                continue
+            logging.info("USER:%s" % userpref.user.nickname())
+            reviewnum=0
+            userpref.reviewed=False
+            userpref.sendreviewmail=False
+            userpref.put()
+            for i in reviewrecords:
+                reviewnum=reviewnum+1
+                i.delete()
+            logging.info("Deleted %d review logs" % reviewnum)
+            num=num+reviewnum
+
+            #呼叫发送复习记录邮件程序
+            if userpref.sendreviewmail==False:
+                continue
+            userpref.reviewed=True
+            userpref.put()
+            sendreviewrecords=ReviewRecord.gql('WHERE user=:1 AND reviewdate=:2',userpref.user,get_user_date(userpref.user.user_id()))
+            messagebody=''
+            for i in sendreviewrecords:
+                messagebody=messagebody+i.witem.eword+'['+i.witem.spell+']'+i.witem.cword
+                i.reviewed=True
+                i.put()
+            mail.send_mail(
+                    sender='ReciteConsole<wgjtyu@gmail.com>',
+                    to=userpref.user.email(),
+                    subject="Today's Review Records",
+                    body=messagebody)
+            logging.info('also send review records to his mailbox')
+        logging.info('Totally deleted %d review logs.' % num)
+        self.response.out.write('Deleted %d logs.' % num)
+
 def main():
-    app=webapp.WSGIApplication([('/m/admin',Admin)],debug=True)
+    app=webapp.WSGIApplication([('/m/admin',Admin),('/dailyjobs',DailyJobs)],debug=True)
     util.run_wsgi_app(app)
 
 if __name__=='__main__':

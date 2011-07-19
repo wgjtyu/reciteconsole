@@ -27,7 +27,37 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 
-orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/')
+orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/m/')
+
+def GetHead():
+    tv= {
+        'user':users.get_current_user(),
+    }
+    path=os.path.join(orig_path,'head.html')
+    return template.render(path,tv)
+
+def GetBottom(requesturi):
+    useradmin=False
+    userlogin=False
+    url=users.create_login_url(requesturi)
+    if users.get_current_user():
+        userlogin=True
+        userprefs=get_userprefs()
+        now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
+        now=now.strftime('%Y-%m-%d %X')
+        url=users.create_logout_url(requesturi)
+        if users.is_current_user_admin():
+            useradmin=True
+    else:
+        now=None
+    tv= {
+        'userlogin':userlogin,
+        'useradmin':useradmin,
+        'usertime':now,
+        'url':url
+    }
+    path=os.path.join(orig_path,'bottom.html')
+    return template.render(path,tv)
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
@@ -135,13 +165,9 @@ class Review(webapp.RequestHandler):
         if not users.get_current_user():
             self.redirect('/m')
         userprefs=get_userprefs()
-        #if userprefs.userprefs.reviewed==False:
         userprefs.reviewed=True
         userprefs.put()
         self.response.out.write(GetHead())
-        #try:
-            #reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2 ORDER BY rp DESC",users.get_current_user(),get_user_date())
-        #except BadArgumentError:
         reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",users.get_current_user(),get_user_date())
         noreviewrecord=False
         for i in reviewrecords:

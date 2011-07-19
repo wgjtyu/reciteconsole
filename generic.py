@@ -5,7 +5,6 @@ from store import *
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from google.appengine.api import urlfetch
-orig_path=os.path.join(os.path.dirname(__file__),'htmlfiles//')
 
 def getText(nodelist):
     rc = []
@@ -32,32 +31,4 @@ def GetPS(word):
     #explanation=explanation[explanation.find(r'<ps>')+4:explanation.find(r'</ps>')]
     #return explanation
 
-def GetHead():
-    tv= {
-        'user':users.get_current_user(),
-    }
-    path=os.path.join(orig_path,'head.html')
-    return template.render(path,tv)
 
-def GetBottom(requesturi):
-    useradmin=False
-    userlogin=False
-    url=users.create_login_url(requesturi)
-    if users.get_current_user():
-        userlogin=True
-        userprefs=get_userprefs()
-        now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
-        #usertime=datetime.time.strftime('%Y-%m-%d %H:%M:%S %a',now)
-        url=users.create_logout_url(requesturi)
-        if users.is_current_user_admin():
-            useradmin=True
-    else:
-        now=None
-    tv= {
-        'userlogin':userlogin,
-        'useradmin':useradmin,
-        'usertime':now,
-        'url':url
-    }
-    path=os.path.join(orig_path,'bottom.html')
-    return template.render(path,tv)
