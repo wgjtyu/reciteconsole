@@ -63,7 +63,10 @@ def GetBottom(requesturi):
 class MainHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write(GetHead())
-        userranking=db.GqlQuery("SELECT * FROM UserPrefs ORDER BY recitenum DESC LIMIT 5")
+        userranking=memcache.get('uranking',namespace='sysfunction')
+        if not userranking:
+            userranking=db.GqlQuery("SELECT * FROM UserPrefs ORDER BY recitenum DESC LIMIT 5")
+            memcache.set('uranking',userranking,60*10)
         template_values= {
                 'userranking':userranking,
         }
