@@ -12,7 +12,7 @@ handlers:
   upload: staticfiles/favicon.ico
 
 - url: /dailyjobs
-  script: main.py
+  script: admin.py
   login: admin
 
 - url: /m/admin

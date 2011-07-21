@@ -26,6 +26,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/m/')
 
@@ -62,7 +63,9 @@ def GetBottom(requesturi):
 class MainHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write(GetHead())
+        userranking=db.GqlQuery("SELECT * FROM UserPrefs ORDER BY recitenum DESC LIMIT 5")
         template_values= {
+                'userranking':userranking,
         }
         path=os.path.join(orig_path,'index.html')
         self.response.out.write(template.render(path,template_values))

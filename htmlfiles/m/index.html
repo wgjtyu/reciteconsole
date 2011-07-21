@@ -1,1 +1,6 @@
-      <p>Welcome!</p>
+    <p>用户排行榜</p>     
+    <ol> 
+      {% for userpref in userranking %}
+      <li>{{ userpref.user.nickname }}</li>
+      {% endfor %}
+    </ol>

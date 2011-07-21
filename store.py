@@ -13,12 +13,10 @@ class HelpMSG(db.Model):
 #用来保存用户配置数据
 class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
-    tz_offset=db.IntegerProperty(default=0)   #时区
+    tz_offset=db.IntegerProperty(default=8)   #时区
     reviewed=db.BooleanProperty()
-    sendreviewmail=db.BooleanProperty(default=True)
-
-    #记住的单词数量
-    recitenum=db.IntegerProperty()
+    sendreviewmail=db.BooleanProperty(default=True) #是否发送复习提示邮件
+    recitenum=db.IntegerProperty() #记住的单词数量
 
     def cache_set(self):
         memcache.set(self.key().name(),self,namespace=self.key().kind())

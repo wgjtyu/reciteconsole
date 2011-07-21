@@ -3,6 +3,7 @@
 import cgi
 import datetime
 import os
+import logging
 from store import *
 from generic import *
 from google.appengine.api import users

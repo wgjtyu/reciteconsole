@@ -5,6 +5,5 @@
         <title>ReciteConsole</title>
     </head>
     <body>
-    {% if user %}
-        <p>welcome <a href="/m/user">{{ user.nickname }}</a></p>
-    {% endif %}
+    <p>welcome{% if user %} , <a href="/m/user">{{ user.nickname }}</a>
+    {% endif %}</p>

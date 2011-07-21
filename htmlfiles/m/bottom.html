@@ -1,22 +1,22 @@
-		<a href="/m">首页</a>
-        {% if userlogin %}
-	<a href="/m/query">查询</a>
-	<a href="/m/recite">测试</a>
-	<a href="/m/review">复习</a>
-	<a href="{{ url }}">退出</a>
-        {% else %}
-	<a href="{{ url }}">登录</a>
-        {% endif %}
-	<a href="/m/help">帮助</a>
-        <p> {%if useradmin %}
-          管理员功能:
-            <a href="/m/addword">添加生词</a>
-            <a href="/m/admin">管理</a>
-        {% endif %} </p>
+    <a href="/m">首页</a>
+  {% if userlogin %}
+    <a href="/m/query">查询</a>
+    <a href="/m/recite">测试</a>
+    <a href="/m/review">复习</a>
+    <a href="{{ url }}">退出</a>
+  {% else %}
+    <a href="{{ url }}">登录</a>
+  {% endif %}
+    <a href="/m/help">帮助</a>
+  {%if useradmin %}
+    <p> 管理员功能:
+      <a href="/m/addword">添加生词</a>
+      <a href="/m/admin">管理</a>
+    </p>
+  {% endif %} 
   {% if userlogin %}
     <p>现在时刻:{{ usertime }}</p>
   {% endif %}
   <img src="http://img.tongji.linezing.com/2331183/tongji.gif">
-  
-    </body>
+  </body>
 </html>
