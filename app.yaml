@@ -2,6 +2,7 @@ application: reciteconsole
 version: 2
 runtime: python
 api_version: 1
+default_expiration: "2d"
 
 handlers:
 - url: /staticfiles
