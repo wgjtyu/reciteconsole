@@ -122,10 +122,6 @@ class LastRecite(db.Model):
     ritem=db.ReferenceProperty(ReciteRecord)
     user=db.UserProperty()
 
-class LastReview(db.Model):
-    ritem=db.ReferenceProperty(ReciteRecord)
-    user=db.UserProperty()
-
 class Sentence(db.Model):
     content=db.StringProperty(multiline=False)#英文
     translation=db.StringProperty(multiline=False)#中文
