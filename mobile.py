@@ -27,6 +27,7 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from google.appengine.ext.webapp.util import login_required
 
 orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/m/')
 
@@ -110,9 +111,8 @@ class UserInfo(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 class Recite(webapp.RequestHandler):
+    @login_required
     def post(self):
-        if not users.get_current_user():
-            self.redirect("/m")
         lastrecites=db.GqlQuery("SELECT * FROM LastRecite Where user=:1",users.get_current_user())
         for i in lastrecites:
             if self.request.get(i.ritem.witem.eword)=='on': #remember
@@ -123,9 +123,8 @@ class Recite(webapp.RequestHandler):
                 continue
             i.ritem.set(delta)
         self.redirect("/m/recite")
+    @login_required
     def get(self):
-        if not users.get_current_user():
-            self.redirect("/m")
         self.response.out.write(GetHead())
         reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         if reciterecords.count()==0:
@@ -167,9 +166,8 @@ class Recite(webapp.RequestHandler):
 class Review(webapp.RequestHandler):
     def post(self):
         pass
+    @login_required
     def get(self):
-        if not users.get_current_user():
-            self.redirect('/m')
         userprefs=get_userprefs()
         userprefs.reviewed=True
         userprefs.put()

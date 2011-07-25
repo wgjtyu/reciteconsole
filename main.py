@@ -27,6 +27,8 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 from google.appengine.api import mail
+from functools import wraps
+from google.appengine.ext.webapp.util import login_required
 
 orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/')
 
@@ -34,8 +36,14 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
+class Admin(webapp.RequestHandler):
+    def get(self):
+        if not users.is_current_user_admin():
+            self.redirect('/')
+        pass
+
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)], debug=True)
+    application = webapp.WSGIApplication([('/', MainHandler),('/admin',Admin)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':
