@@ -65,7 +65,7 @@ class DailyJobs(webapp.RequestHandler):
                 i.reviewed=True
                 i.put()
             mail.send_mail(
-                    sender='ReciteConsole<wgjtyu@gmail.com>',
+                    sender='ReciteConsole <rc@reciteconsole.appspotmail.com>',
                     to=userpref.user.email(),
                     subject="Today's Review Records",
                     body=messagebody)
