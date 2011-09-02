@@ -77,6 +77,8 @@ class MainHandler(webapp.RequestHandler):
 
 class UserInfo(webapp.RequestHandler):
     def post(self):
+        if not users.get_current_user():
+            self.redirect('/m')
         userprefs=get_userprefs()
         userprefs.tz_offset=int(self.request.get('timezone'))
         if 'rvmail' in self.request.get('rvmail'):
@@ -86,6 +88,7 @@ class UserInfo(webapp.RequestHandler):
         userprefs.sendreviewmail=sendreviewmail
         userprefs.put()
         self.redirect('/m')
+    @login_required
     def get(self):
         self.response.out.write(GetHead())
         if not users.get_current_user():
@@ -111,7 +114,6 @@ class UserInfo(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 class Recite(webapp.RequestHandler):
-    @login_required
     def post(self):
         lastrecites=db.GqlQuery("SELECT * FROM LastRecite Where user=:1",users.get_current_user())
         for i in lastrecites:
@@ -164,8 +166,6 @@ class Recite(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 class Review(webapp.RequestHandler):
-    def post(self):
-        pass
     @login_required
     def get(self):
         userprefs=get_userprefs()

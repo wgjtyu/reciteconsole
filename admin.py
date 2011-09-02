@@ -6,6 +6,7 @@ import os
 import logging
 from store import *
 from generic import *
+from mobile import *
 from google.appengine.api import users
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
@@ -13,14 +14,12 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 
+from functools import wraps
+
+orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/admin/')
+
 class Admin(webapp.RequestHandler):
-    def post(self):
-        vemail=self.request.get('validuser')
-        if vemail.__len__()!=0:
-            validuser=ValidUser()
-            validuser.email=vemail
-            validuser.put()
-            self.redirect('/m/admin')
+    @requires_admin
     def get(self):
         stat_items=memcache.get_stats().iteritems()
         memlog=''
@@ -74,7 +73,7 @@ class DailyJobs(webapp.RequestHandler):
         self.response.out.write('Deleted %d logs.' % num)
 
 def main():
-    app=webapp.WSGIApplication([('/m/admin',Admin),('/dailyjobs',DailyJobs)],debug=True)
+    app=webapp.WSGIApplication([('/admin',Admin),('/dailyjobs',DailyJobs)],debug=True)
     util.run_wsgi_app(app)
 
 if __name__=='__main__':

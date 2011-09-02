@@ -23,3 +23,16 @@ def GetPS(word):
     #    return 'None'
     #explanation=explanation[explanation.find(r'<ps>')+4:explanation.find(r'</ps>')]
     #return explanation
+
+def requires_admin(method):
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        if not users.get_current_user():
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+        elif not users.is_current_user_admin():
+            return self.error(403)
+        else:
+            return method(self, *args, **kwargs)
+    return wrapper
+

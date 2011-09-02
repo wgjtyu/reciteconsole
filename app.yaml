@@ -16,7 +16,7 @@ handlers:
   script: admin.py
   login: admin
 
-- url: /m/admin
+- url: /admin
   script: admin.py
   login: admin
 

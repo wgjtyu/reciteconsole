@@ -36,14 +36,8 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
-class Admin(webapp.RequestHandler):
-    def get(self):
-        if not users.is_current_user_admin():
-            self.redirect('/')
-        pass
-
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler),('/admin',Admin)], debug=True)
+    application = webapp.WSGIApplication([('/', MainHandler)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':

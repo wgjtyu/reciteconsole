@@ -52,12 +52,20 @@ class WordItem(db.Model):
     cword=db.StringProperty(multiline=False)#中文
     spell=db.StringProperty(multiline=False)#音标
 
+    thesaurus=db.ListProperty(db.Key)#该单词所属的词库
+
     #在导入单词后可能因此导入重复的词，这个标记表示该单词已经经过人工检查,没有重复
     checked=db.BooleanProperty(default=False)
     
     adddate=db.DateTimeProperty(auto_now_add=True)
     addby=db.UserProperty()
     sentence=db.ListProperty(db.Key)#指向包含此单词的句子
+
+class Thesaurus(db.Model):
+    name=db.StringProperty(multiline=False)
+    description=db.StringProperty()
+    wordlist=db.ListProperty(db.Key)#单词列表
+    updatelock=db.BooleanProperty()#更新锁定
 
 class ReviewRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
