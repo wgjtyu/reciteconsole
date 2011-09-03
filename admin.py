@@ -14,8 +14,6 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 
-from functools import wraps
-
 orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/admin/')
 
 class Admin(webapp.RequestHandler):

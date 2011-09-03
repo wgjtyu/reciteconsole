@@ -5,6 +5,7 @@ from store import *
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from google.appengine.api import urlfetch
+from functools import wraps
 
 #得到单词的音标
 def GetPS(word):
