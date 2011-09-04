@@ -34,7 +34,12 @@ class Admin(webapp.RequestHandler):
                 worditem.addby=users.get_current_user()
                 worditem.put()
 
-        parm=self.request.path[7:]
+        def mtsu():
+            parm=self.request.path[12:16];
+            if parm=="addt":
+                pass
+
+        parm=self.request.path[7:11]
         if parm=="addw":
             addw()
             self.redirect('/admin.addw')
@@ -52,7 +57,12 @@ class Admin(webapp.RequestHandler):
             return template.render(path,tv)
 
         def mtsu():
-            tsu=db.GqlQuery("SELECT * FROM Thesaurus"
+            tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+            tv={
+                    "Tsus":tsus
+               }
+            path=os.path.join(orig_path,'mtsu.html')
+            return template.render(path,tv)
 
         def stat():
             stat_items=memcache.get_stats().iteritems()
@@ -66,11 +76,11 @@ class Admin(webapp.RequestHandler):
             return template.render(path,tv)
 
         path=os.path.join(orig_path,'index.html')
-        parm=self.request.path[7:]
+        parm=self.request.path[7:11]
         if parm=="addw":
             body=addw()
         elif parm=="mtsu":
-            body=NONE
+            body=mtsu()
         elif parm=="chkw":
             body=NONE
         elif parm=="musr":
