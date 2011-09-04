@@ -17,19 +17,69 @@ from google.appengine.ext.webapp import template
 orig_path=os.path.join(os.path.dirname(__file__),r'htmlfiles/admin/')
 
 class Admin(webapp.RequestHandler):
-    @requires_admin
+    def post(self):
+        def addw():
+            wordset=self.request.get('wordrecord')
+            l=0
+            if wordset.__len__()==0:
+                self.redirect('/admin')
+            worditems=wordset.split('\n')
+            for i in worditems:
+                w=i.split('|')
+                if w.__len__()!=2:
+                    break
+                worditem=WordItem()
+                worditem.eword=w[0]
+                worditem.cword=w[1]
+                worditem.addby=users.get_current_user()
+                worditem.put()
+
+        parm=self.request.path[7:]
+        if parm=="addw":
+            body=addw()
+            self.redirect.uri('/admin.addw')
+        elif parm=="mtsu":
+            body=NONE
+        elif parm=="chkw":
+            body=NONE
+        elif parm=="musr":
+            body=NONE
     def get(self):
-        stat_items=memcache.get_stats().iteritems()
-        memlog=''
-        for item in stat_items:
-            memlog=memlog+'%s=%d ' % item
-        tv= {
-            'memlog':memlog
+        def addw():
+            tv={}
+            path=os.path.join(orig_path,'addw.html')
+            return template.render(path,tv)
+
+        def mtsu():
+            tsu=db.GqlQuery("SELECT * FROM Thesaurus"
+
+        def stat():
+            stat_items=memcache.get_stats().iteritems()
+            memlog=''
+            for item in stat_items:
+                memlog=memlog+'%s=%d ' % item
+            tv= {
+                'memlog':memlog
             }
-        self.response.out.write(GetHead())
-        path=os.path.join(orig_path,'admin.html')
+            path=os.path.join(orig_path,'stat.html')
+            return template.render(path,tv)
+
+        path=os.path.join(orig_path,'index.html')
+        parm=self.request.path[7:]
+        if parm=="addw":
+            body=addw()
+        elif parm=="mtsu":
+            body=NONE
+        elif parm=="chkw":
+            body=NONE
+        elif parm=="musr":
+            body=NONE
+        else:
+            body=stat()
+        tv={
+           'adminbody':body
+           }
         self.response.out.write(template.render(path,tv))
-        self.response.out.write(GetBottom(self.request.uri))
 
 class DailyJobs(webapp.RequestHandler):
     def get(self):
@@ -71,7 +121,7 @@ class DailyJobs(webapp.RequestHandler):
         self.response.out.write('Deleted %d logs.' % num)
 
 def main():
-    app=webapp.WSGIApplication([('/admin',Admin),('/dailyjobs',DailyJobs)],debug=True)
+    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs)],debug=True)
     util.run_wsgi_app(app)
 
 if __name__=='__main__':

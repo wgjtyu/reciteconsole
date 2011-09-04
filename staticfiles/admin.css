@@ -1,0 +1,33 @@
+body{
+    font-family:Verdana,Helvetica,sans-serif;
+    background-color:#FFFFFF;
+}
+div {width:500px; border:1px #000000 solid}
+ul#returnindex {style-type:none;width:90%;text-align:right;}
+#minitabs {
+  margin:0;
+  padding: 0 0 20px 10px;
+  border-bottom: 1px solid #696;
+}
+#minitabs li{
+  margin:0;
+  padding:0;
+  display:inline;
+  list-style-type:none;
+}
+#minitabs a{
+  float:left;
+  line-height:14px;
+  font-weight:bold;
+  margin:0 10px 4px 10px;
+  text-decoration:none;
+  color:#9c9;
+}
+#minitabs a.active,#minitabs a:hover {
+  border-bottom:4px solid #696;
+  padding-bottom:2px;
+  color:#363;
+}
+#minitabs a.hover {
+  color:#696;
+}
