@@ -16,12 +16,8 @@ handlers:
   script: admin.py
   login: admin
 
-- url: /admin
+- url: /admin.*
   script: admin.py
-  login: admin
-
-- url: /m/addword
-  script: addword.py
   login: admin
 
 - url: /m.*

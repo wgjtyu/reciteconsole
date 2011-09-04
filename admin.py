@@ -36,14 +36,15 @@ class Admin(webapp.RequestHandler):
 
         parm=self.request.path[7:]
         if parm=="addw":
-            body=addw()
-            self.redirect.uri('/admin.addw')
+            addw()
+            self.redirect('/admin.addw')
         elif parm=="mtsu":
-            body=NONE
+            self.redirect('/admin.mtsu')
         elif parm=="chkw":
-            body=NONE
+            self.redirect('/admin.chkw')
         elif parm=="musr":
-            body=NONE
+            self.redirect('/admin.musr')
+
     def get(self):
         def addw():
             tv={}
