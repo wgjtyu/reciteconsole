@@ -37,13 +37,18 @@ class Admin(webapp.RequestHandler):
         def mtsu():
             parm=self.request.path[12:16];
             if parm=="addt":
-                pass
+                tsun=self.request.get("tsuname")
+                if tsun!="":
+                    tsu=Thesaurus()
+                    tsu.name=tsun
+                    tsu.put()
 
         parm=self.request.path[7:11]
         if parm=="addw":
-            addw()
+            addw()#未完成
             self.redirect('/admin.addw')
         elif parm=="mtsu":
+            mtsu()
             self.redirect('/admin.mtsu')
         elif parm=="chkw":
             self.redirect('/admin.chkw')
@@ -56,7 +61,11 @@ class Admin(webapp.RequestHandler):
             path=os.path.join(orig_path,'addw.html')
             return template.render(path,tv)
 
+#TODO:显示单词列表
         def mtsu():
+            parm=self.request.path[12:16]
+            if parm=="list":
+                pass
             tsus=db.GqlQuery("SELECT * FROM Thesaurus")
             tv={
                     "Tsus":tsus
