@@ -20,9 +20,9 @@ class Admin(webapp.RequestHandler):
     def post(self):
         def addw():
             wordset=self.request.get('wordrecord')
-            l=0
+            tsu=db.get(self.request.get('tsuname'))
             if wordset.__len__()==0:
-                self.redirect('/admin')
+                self.redirect('/admin.addw')
             worditems=wordset.split('\n')
             for i in worditems:
                 w=i.split('|')
@@ -36,7 +36,7 @@ class Admin(webapp.RequestHandler):
 
         def mtsu():
             parm=self.request.path[12:16];
-            if parm=="addt":
+            if parm=="addt":#添加词库
                 tsun=self.request.get("tsuname")
                 if tsun!="":
                     tsu=Thesaurus()
@@ -57,7 +57,10 @@ class Admin(webapp.RequestHandler):
 
     def get(self):
         def addw():
-            tv={}
+            tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+            tv={
+                    "Tsus":tsus
+                }
             path=os.path.join(orig_path,'addw.html')
             return template.render(path,tv)
 

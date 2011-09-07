@@ -101,14 +101,24 @@ class UserInfo(webapp.RequestHandler):
             rvmail='checked'
         else:
             rvmail=''
+
+        #在tsus不存在时，不能添加None
+        if not user_prefs.tsus:
+            user_prefs.tsus=[]
+        #而当tsus为空时，调用put()又会出错
         if not user_prefs.recitenum:
             user_prefs.recitenum=0
             user_prefs.put()
-        recitenum=user_prefs.recitenum
+        tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+        if len(user_prefs.tsus)!=0:
+            for tsu in user_prefs.tsus:
+                if tsu in tsus:
+                    tsus.remove(tsu)
         tv={
             'tz_offset':tz_offset,
             'rvmail':rvmail,
-            'recitenum':user_prefs.recitenum
+            'recitenum':user_prefs.recitenum,
+            'tsus':tsus
         }
         self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))

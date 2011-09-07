@@ -1,9 +1,10 @@
 <form action="/admin.addw" method="post">
   <div>
-    <select name="{{reciterecord.witem.eword}}">
-      <option value="off">{{reciterecord.witem.eword}}
-      <option value="on">{{reciterecord.witem.cword}}
-  </select>{{reciterecord.reval}}
+    <select name="tsuname">
+      {% for tsu in Tsus %}
+      <option value="{{ tsu.key }}">{{ tsu.name }}</option>
+      {% endfor %}
+  </select>
   </div> 
   <div>
     词库记录的格式为(每条记录占一行)
