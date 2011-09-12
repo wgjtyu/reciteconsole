@@ -71,28 +71,12 @@ class UserInfo(webapp.RequestHandler):
             sendreviewmail=True
         else:
             sendreviewmail=False
-        #TODO:提交时检查是否用户有勾选代记忆的词库
-        #TODO:会出现无限提交task的bug
-        #可以检查tsus的大小
         tsus=self.request.get_all('thesaurus')
         for tsu in tsus:
-            #taskqueue.add(url='/addrcword',params={'tsukey':tsu,'user_email':userprefs.user.email()})
-            #if userprefs.tsus==None:
-            #    userprefs.tsus=[]
+            #对于用户勾选的词库，后台添加对应词库中的单词至用户的ReciteRecord中
+            taskqueue.add(url='/addrcword',params={'tsukey':tsu,'user_email':userprefs.user.email()})
             key=db.Key(tsu)
-            #item=Thesaurus.get(db.Key(tsu))
-            #item=db.get(tsu)
-            #key=item.key()
             userprefs.tsus.append(key)
-            #self.response.out.write(tsu)
-            #userprefs.tsus.append(tsu)
-        self.response.out.write(len(userprefs.tsus))
-        if len(userprefs.tsus)==0:
-            self.response.out.write('userprefs have no tsu')
-        else:
-            for i in userprefs.tsus:
-                self.response.out.write(i)
-                self.response.out.write('<br/>')
         userprefs.sendreviewmail=sendreviewmail
         userprefs.put()
         #self.redirect('/m')

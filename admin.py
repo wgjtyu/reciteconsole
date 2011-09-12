@@ -147,9 +147,12 @@ class AddRcWord(webapp.RequestHandler):
     def post(self):
         user=users.User(self.request.get('user_email'))
         tsu=db.get(self.request.get('tsukey'))
+        log="Add %s to %s 's ReciteRecord" % (tsu.name,user.email())
+        logging.info(log)
+        self.response.out.write(log)
         def work():
             for w in tsu.wordlist:
-                reciterecords=ReciteRecord.gql('WHERE user=:1 and witem=:2',user)
+                #reciterecords=ReciteRecord.gql('WHERE user=:1 and witem=:2',user)
                 if reciterecords.count()==0:
                     # w not in user's reciterecords
                     # insert w into user's reciterecords
