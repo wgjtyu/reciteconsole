@@ -12,6 +12,10 @@ handlers:
   static_files: staticfiles/favicon.ico
   upload: staticfiles/favicon.ico
 
+- url: /addrcword
+  script: admin.py
+  login: admin
+
 - url: /dailyjobs
   script: admin.py
   login: admin

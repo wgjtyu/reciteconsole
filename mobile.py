@@ -1,19 +1,4 @@
-#!/usr/bin/env python
 # -*- coding:utf8 -*-
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 #
 import cgi
 import datetime
@@ -21,6 +6,7 @@ import os
 from store import *
 from generic import *
 from google.appengine.api import users
+from google.appengine.api import taskqueue
 from google.appengine.api import urlfetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -85,9 +71,31 @@ class UserInfo(webapp.RequestHandler):
             sendreviewmail=True
         else:
             sendreviewmail=False
+        #TODO:提交时检查是否用户有勾选代记忆的词库
+        #TODO:会出现无限提交task的bug
+        #可以检查tsus的大小
+        tsus=self.request.get_all('thesaurus')
+        for tsu in tsus:
+            #taskqueue.add(url='/addrcword',params={'tsukey':tsu,'user_email':userprefs.user.email()})
+            #if userprefs.tsus==None:
+            #    userprefs.tsus=[]
+            key=db.Key(tsu)
+            #item=Thesaurus.get(db.Key(tsu))
+            #item=db.get(tsu)
+            #key=item.key()
+            userprefs.tsus.append(key)
+            #self.response.out.write(tsu)
+            #userprefs.tsus.append(tsu)
+        self.response.out.write(len(userprefs.tsus))
+        if len(userprefs.tsus)==0:
+            self.response.out.write('userprefs have no tsu')
+        else:
+            for i in userprefs.tsus:
+                self.response.out.write(i)
+                self.response.out.write('<br/>')
         userprefs.sendreviewmail=sendreviewmail
         userprefs.put()
-        self.redirect('/m')
+        #self.redirect('/m')
     @login_required
     def get(self):
         self.response.out.write(GetHead())
@@ -101,19 +109,16 @@ class UserInfo(webapp.RequestHandler):
             rvmail='checked'
         else:
             rvmail=''
-
-        #在tsus不存在时，不能添加None
-        if not user_prefs.tsus:
-            user_prefs.tsus=[]
-        #而当tsus为空时，调用put()又会出错
-        if not user_prefs.recitenum:
+        if user_prefs.recitenum==None:
             user_prefs.recitenum=0
             user_prefs.put()
         tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+        tsukeys=[str(i.key()) for i in tsus]
         if len(user_prefs.tsus)!=0:
             for tsu in user_prefs.tsus:
-                if tsu in tsus:
-                    tsus.remove(tsu)
+                if str(tsu) in tsukeys:
+                    tsukeys.remove(str(tsu))#删除那些已经被用户选过的tsu
+        tsus=db.get(tsukeys)#重新获取tsus
         tv={
             'tz_offset':tz_offset,
             'rvmail':rvmail,
@@ -153,7 +158,7 @@ class Recite(webapp.RequestHandler):
                             break
                 if word.reciterecord_set.count()==0 or unrecite:
                     reciterecord=ReciteRecord()
-                    reciterecord.create(word)
+                    reciterecord.create_w(word)
                     i=i-1
             reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         noreciterecord=False

@@ -64,8 +64,8 @@ class Admin(webapp.RequestHandler):
             path=os.path.join(orig_path,'addw.html')
             return template.render(path,tv)
 
-#TODO:显示单词列表
         def mtsu():
+            #TODO:显示单词列表
             parm=self.request.path[12:16]
             if parm=="list":
                 pass
@@ -94,9 +94,9 @@ class Admin(webapp.RequestHandler):
         elif parm=="mtsu":
             body=mtsu()
         elif parm=="chkw":
-            body=NONE
+            body=None
         elif parm=="musr":
-            body=NONE
+            body=None
         else:
             body=stat()
         tv={
@@ -143,8 +143,22 @@ class DailyJobs(webapp.RequestHandler):
         logging.info('Totally deleted %d review logs.' % num)
         self.response.out.write('Deleted %d logs.' % num)
 
+class AddRcWord(webapp.RequestHandler):
+    def post(self):
+        user=users.User(self.request.get('user_email'))
+        tsu=db.get(self.request.get('tsukey'))
+        def work():
+            for w in tsu.wordlist:
+                reciterecords=ReciteRecord.gql('WHERE user=:1 and witem=:2',user)
+                if reciterecords.count()==0:
+                    # w not in user's reciterecords
+                    # insert w into user's reciterecords
+                    reciterecord=ReciteRecord()
+                    reciterecord.create_w_u(word,user)
+        db.run_in_transaction(work)
+
 def main():
-    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs)],debug=True)
+    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs),('/addrcword',AddRcWord)],debug=True)
     util.run_wsgi_app(app)
 
 if __name__=='__main__':
