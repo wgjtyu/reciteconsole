@@ -100,10 +100,11 @@ class ReciteRecord(db.Model):
     rtotal=db.IntegerProperty()   #总共测试次数
     rfailure=db.IntegerProperty() #测试中失败的次数
     def create_w(self,worditem):
-        create_w_u(self,worditem,users.get_current_user())
+        self.create_w_u(worditem,users.get_current_user())
 
     def create_w_u(self,worditem,user):
         self.witem=worditem.key()
+        self.user=user
         self.rp=0.0
         self.recitedate=get_user_date()
         self.reval=2

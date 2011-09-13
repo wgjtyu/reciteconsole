@@ -20,21 +20,23 @@ class Admin(webapp.RequestHandler):
     def post(self):
         def addw():
             wordset=self.request.get('wordrecord')
-            tsu=db.get(self.request.get('tsuname'))
             if wordset.__len__()==0:
+                self.response.out.write('none word')
                 self.redirect('/admin.addw')
+            tsu=db.get(self.request.get('tsukey'))
             worditems=wordset.split('\n')
             for i in worditems:
                 w=i.split('|')
                 if w.__len__()!=2:
-                    break
+                    continue
                 worditem=WordItem()
                 worditem.eword=w[0]
                 worditem.cword=w[1]
                 worditem.addby=users.get_current_user()
-                worditem.thesaurus.append(db.Key(tsu))
+                worditem.thesaurus.append(tsu.key())
                 worditem.put()
-                tsu.wordlist.append(worditem)
+                tsu.wordlist.append(worditem.key())
+            tsu.put()
 
         def mtsu():
             parm=self.request.path[12:16];
@@ -56,6 +58,7 @@ class Admin(webapp.RequestHandler):
             self.redirect('/admin.chkw')
         elif parm=="musr":
             self.redirect('/admin.musr')
+        #self.redirect(self.request.uri)
 
     def get(self):
         def addw():
@@ -152,15 +155,14 @@ class AddRcWord(webapp.RequestHandler):
         log="Add %s to %s 's ReciteRecord" % (tsu.name,user.email())
         logging.info(log)
         self.response.out.write(log)
-        def work():
-            for w in tsu.wordlist:
-                #reciterecords=ReciteRecord.gql('WHERE user=:1 and witem=:2',user)
-                if reciterecords.count()==0:
-                    # w not in user's reciterecords
-                    # insert w into user's reciterecords
-                    reciterecord=ReciteRecord()
-                    reciterecord.create_w_u(word,user)
-        db.run_in_transaction(work)
+        #def work():
+        for w in tsu.wordlist:
+            reciterecords=ReciteRecord.gql('WHERE user=:1 and witem=:2',user,w)
+            if reciterecords.count()==0:
+                # w not in user's reciterecords,insert w into user's reciterecords
+                reciterecord=ReciteRecord()
+                reciterecord.create_w_u(db.get(w),user)
+        #db.run_in_transaction(work)
 
 def main():
     app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs),('/addrcword',AddRcWord)],debug=True)
