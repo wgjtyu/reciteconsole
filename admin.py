@@ -32,7 +32,9 @@ class Admin(webapp.RequestHandler):
                 worditem.eword=w[0]
                 worditem.cword=w[1]
                 worditem.addby=users.get_current_user()
+                worditem.thesaurus.append(db.Key(tsu))
                 worditem.put()
+                tsu.wordlist.append(worditem)
 
         def mtsu():
             parm=self.request.path[12:16];

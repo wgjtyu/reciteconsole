@@ -79,7 +79,7 @@ class UserInfo(webapp.RequestHandler):
             userprefs.tsus.append(key)
         userprefs.sendreviewmail=sendreviewmail
         userprefs.put()
-        #self.redirect('/m')
+        self.redirect('/m')
     @login_required
     def get(self):
         self.response.out.write(GetHead())
@@ -96,7 +96,7 @@ class UserInfo(webapp.RequestHandler):
         if user_prefs.recitenum==None:
             user_prefs.recitenum=0
             user_prefs.put()
-        tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+        tsus=db.GqlQuery("SELECT * FROM Thesaurus")#返回的tsus没有remove方法
         tsukeys=[str(i.key()) for i in tsus]
         if len(user_prefs.tsus)!=0:
             for tsu in user_prefs.tsus:
