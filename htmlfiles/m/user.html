@@ -13,12 +13,14 @@
   <br />
   <div>
     选择要记忆的词库:
-    {%for tsu in tsus%}
+    {% for tsu in tsus %}
+    {% if not tsu.updatelock %}
     <tr>
       <td>{{tsu.name}}</td>
       <td><input type="checkbox" name="thesaurus" value="{{tsu.key}}"/></td>
     </tr>
-    {%endfor%}
+    {% endif %}
+    {% endfor %}
   </div>
   <br />
   <input type="submit" value="保存个人设置">

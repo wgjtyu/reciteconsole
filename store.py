@@ -111,6 +111,7 @@ class ReciteRecord(db.Model):
         self.rtotal=0
         self.rfailure=0
         self.put()
+
     def set(self,delta):
         user_prefs=get_userprefs(self.user.user_id())
         self.rp=self.rp*0.7+0.3*delta
@@ -145,3 +146,7 @@ class LastRecite(db.Model):
 class Sentence(db.Model):
     content=db.StringProperty(multiline=False)#英文
     translation=db.StringProperty(multiline=False)#中文
+
+class ReduplicateWord(db.Model):
+    #word1ist=db.ListProperty(db.Key)
+    wordlist=db.ListProperty(db.Key)#单词列表

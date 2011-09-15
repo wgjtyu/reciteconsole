@@ -36,6 +36,8 @@ class Admin(webapp.RequestHandler):
                 worditem.thesaurus.append(tsu.key())
                 worditem.put()
                 tsu.wordlist.append(worditem.key())
+            tsu.updatelock=True
+            taskqueue.add(url='/chkrcword',params={'thesaurus':tsu.key()})
             tsu.put()
 
         def mtsu():
@@ -45,11 +47,12 @@ class Admin(webapp.RequestHandler):
                 if tsun!="":
                     tsu=Thesaurus()
                     tsu.name=tsun
+                    tsu.updatelock=True
                     tsu.put()
 
         parm=self.request.path[7:11]
         if parm=="addw":
-            addw()#未完成
+            addw()
             self.redirect('/admin.addw')
         elif parm=="mtsu":
             mtsu()
@@ -81,6 +84,9 @@ class Admin(webapp.RequestHandler):
             path=os.path.join(orig_path,'mtsu.html')
             return template.render(path,tv)
 
+        def chkw():
+            pass
+
         def stat():
             stat_items=memcache.get_stats().iteritems()
             memlog=''
@@ -99,7 +105,7 @@ class Admin(webapp.RequestHandler):
         elif parm=="mtsu":
             body=mtsu()
         elif parm=="chkw":
-            body=None
+            body=chkw()
         elif parm=="musr":
             body=None
         else:
@@ -150,6 +156,7 @@ class DailyJobs(webapp.RequestHandler):
 
 class AddRcWord(webapp.RequestHandler):
     def post(self):
+        #从email构造出User对象
         user=users.User(self.request.get('user_email'))
         tsu=db.get(self.request.get('tsukey'))
         log="Add %s to %s 's ReciteRecord" % (tsu.name,user.email())
@@ -164,8 +171,22 @@ class AddRcWord(webapp.RequestHandler):
                 reciterecord.create_w_u(db.get(w),user)
         #db.run_in_transaction(work)
 
+class ChkRcWord(webapp.RequestHandler):#检查词库中单词是否有重复
+    def post(self):
+        tsu=db.get(self.request.get('thesaurus'))
+        for w in tsu.wordlist:
+            #TODO:这里对数据库调用次数太多，可以一次性get整个列表
+            witems=WordItem.gql('WHERE eword=:1',db.get(w).eword)
+            logging.info(witems.count())
+            if witems.count()!=1:
+                r=ReduplicateWord()
+                for witem in witems:
+                    logging.info(witem.cword)
+                    r.wordlist.append(witem.key())
+                r.put()
+
 def main():
-    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs),('/addrcword',AddRcWord)],debug=True)
+    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs),('/addrcword',AddRcWord),('/chkrcword',ChkRcWord)],debug=True)
     util.run_wsgi_app(app)
 
 if __name__=='__main__':
