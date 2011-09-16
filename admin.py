@@ -50,6 +50,9 @@ class Admin(webapp.RequestHandler):
                     tsu.updatelock=True
                     tsu.put()
 
+        def chkw():#post
+            pass
+
         parm=self.request.path[7:11]
         if parm=="addw":
             addw()
@@ -76,7 +79,14 @@ class Admin(webapp.RequestHandler):
             #TODO:显示单词列表
             parm=self.request.path[12:16]
             if parm=="list":
-                pass
+                tsukey=self.request.path[17:]
+                tsus=db.get(tsukey)
+                wl=db.get(tsus.wordlist)
+                tv={
+                        "wordlist":wl
+                   }
+                path=os.path.join(orig_path,'mtsu.list.html')
+                return template.render(path,tv)
             tsus=db.GqlQuery("SELECT * FROM Thesaurus")
             tv={
                     "Tsus":tsus
@@ -84,8 +94,16 @@ class Admin(webapp.RequestHandler):
             path=os.path.join(orig_path,'mtsu.html')
             return template.render(path,tv)
 
-        def chkw():
-            pass
+        def chkw():#get
+            query=ReduplicateWord.all()
+            rw=query.fetch(1)
+            if len(rw)==1:
+                wl=db.get(rw[0].wordlist)
+                tv={
+                        "wordlist":wl
+                   }
+            path=os.path.join(orig_path,'chkw.html')
+            return template.render(path,tv)
 
         def stat():
             stat_items=memcache.get_stats().iteritems()
@@ -177,7 +195,6 @@ class ChkRcWord(webapp.RequestHandler):#检查词库中单词是否有重复
         for w in tsu.wordlist:
             #TODO:这里对数据库调用次数太多，可以一次性get整个列表
             witems=WordItem.gql('WHERE eword=:1',db.get(w).eword)
-            logging.info(witems.count())
             if witems.count()!=1:
                 r=ReduplicateWord()
                 for witem in witems:
