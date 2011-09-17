@@ -48,6 +48,10 @@ def GetBottom(requesturi):
         now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
         now=now.strftime('%Y-%m-%d %X')
         url=users.create_logout_url(requesturi)
+        reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
+        rcnum=reciterecords.count()
+        reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",users.get_current_user(),get_user_date())
+        rvnum=reviewrecords.count()
         if users.is_current_user_admin():
             useradmin=True
     else:
@@ -56,7 +60,9 @@ def GetBottom(requesturi):
         'userlogin':userlogin,
         'useradmin':useradmin,
         'usertime':now,
-        'url':url
+        'url':url,
+        'recitenum':rcnum,
+        'reviewnum':rvnum
     }
     path=os.path.join(orig_path,'bottom.html')
     return template.render(path,tv)
