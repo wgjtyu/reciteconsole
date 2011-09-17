@@ -1,8 +1,8 @@
     <a href="/m">首页</a>
   {% if userlogin %}
     <a href="/m/query">查询</a>
-    <a href="/m/recite">测试</a>
-    <a href="/m/review">复习</a>
+    <a href="/m/recite">测试{% if recitenum %}({{ recitenum }}){% endif %}</a>
+    <a href="/m/review">复习{% if reviewnum %}({{ reviewnum }}){% endif %}</a>
     <a href="{{ url }}">退出</a>
   {% else %}
     <a href="{{ url }}">登录</a>
