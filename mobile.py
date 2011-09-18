@@ -134,23 +134,23 @@ class Recite(webapp.RequestHandler):
     def get(self):
         self.response.out.write(GetHead())
         reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
-        if reciterecords.count()==0:
-            wordquery=WordItem.all()
-            i=5
-            for word in wordquery:
-                if i==0:
-                    break
-                if word.reciterecord_set.count()!=0:
-                    unrecite=True
-                    for wrc in word.reciterecord_set:
-                        if wrc.user==users.get_current_user():
-                            unrecite=False
-                            break
-                if word.reciterecord_set.count()==0 or unrecite:
-                    reciterecord=ReciteRecord()
-                    reciterecord.create_w(word)
-                    i=i-1
-            reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
+        #if reciterecords.count()==0:
+        #    wordquery=WordItem.all()
+        #    i=5
+        #    for word in wordquery:
+        #        if i==0:
+        #            break
+        #        if word.reciterecord_set.count()!=0:
+        #            unrecite=True
+        #            for wrc in word.reciterecord_set:
+        #                if wrc.user==users.get_current_user():
+        #                    unrecite=False
+        #                    break
+        #        if word.reciterecord_set.count()==0 or unrecite:
+        #            reciterecord=ReciteRecord()
+        #            reciterecord.create_w(word)
+        #            i=i-1
+        #    reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         noreciterecord=False
         if reciterecords.count()==0:
             noreciterecord=True
