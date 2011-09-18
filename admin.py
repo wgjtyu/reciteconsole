@@ -94,7 +94,7 @@ class Admin(webapp.RequestHandler):
             path=os.path.join(orig_path,'mtsu.html')
             return template.render(path,tv)
 
-        def chkw():#get
+        def chkw():
             query=ReduplicateWord.all()
             rw=query.fetch(1)
             if len(rw)==1:
@@ -194,12 +194,14 @@ class ChkRcWord(webapp.RequestHandler):#检查词库中单词是否有重复
         tsu=db.get(self.request.get('thesaurus'))
         for w in tsu.wordlist:
             #TODO:这里对数据库调用次数太多，可以一次性get整个列表
-            witems=WordItem.gql('WHERE eword=:1',db.get(w).eword)
+            word=db.get(w)
+            witems=WordItem.gql('WHERE eword=:1',word.eword)
             if witems.count()!=1:
                 r=ReduplicateWord()
+                r.newword=str(word.key())
                 for witem in witems:
-                    logging.info(witem.cword)
-                    r.wordlist.append(witem.key())
+                    if witem!=word:
+                        r.wordlist.append(witem.key())
                 r.put()
 
 def main():

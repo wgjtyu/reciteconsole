@@ -148,5 +148,5 @@ class Sentence(db.Model):
     translation=db.StringProperty(multiline=False)#中文
 
 class ReduplicateWord(db.Model):
-    #word1ist=db.ListProperty(db.Key)
+    newword=db.StringProperty(db.Key)
     wordlist=db.ListProperty(db.Key)#单词列表
