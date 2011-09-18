@@ -52,7 +52,7 @@ class Admin(webapp.RequestHandler):
             return template.render(path,tv)
 
         def mtsu():
-            tsu=db.GqlQuery("SELECT * FROM Thesaurus"
+            tsu=db.GqlQuery("SELECT * FROM Thesaurus")
 
         def stat():
             stat_items=memcache.get_stats().iteritems()
