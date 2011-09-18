@@ -4,6 +4,11 @@
     <th>意思</th>
     <th>选项</th>
   </tr>
+  <tr>
+    <td>{{ newword.eword }}</th>
+    <td>{{ newword.cword }}</th>
+    <td><input type="submit" value="删除" id="delete"/></td>
+  </tr>
   {% for w in wordlist %} 
   <tr>
     <td>{{ w.eword }}</td>

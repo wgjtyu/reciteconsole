@@ -99,8 +99,10 @@ class Admin(webapp.RequestHandler):
             rw=query.fetch(1)
             if len(rw)==1:
                 wl=db.get(rw[0].wordlist)
+                nw=db.get(db.Key(rw[0].newword))
                 tv={
-                        "wordlist":wl
+                        "wordlist":wl,
+                        "newword":nw
                    }
             path=os.path.join(orig_path,'chkw.html')
             return template.render(path,tv)
@@ -200,7 +202,7 @@ class ChkRcWord(webapp.RequestHandler):#检查词库中单词是否有重复
                 r=ReduplicateWord()
                 r.newword=str(word.key())
                 for witem in witems:
-                    if witem!=word:
+                    if witem.key()!=word.key():
                         r.wordlist.append(witem.key())
                 r.put()
 
