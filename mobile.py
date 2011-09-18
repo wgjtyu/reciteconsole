@@ -42,6 +42,8 @@ def GetBottom(requesturi):
     useradmin=False
     userlogin=False
     url=users.create_login_url(requesturi)
+    rcnum=0
+    rvnum=0
     if users.get_current_user():
         userlogin=True
         userprefs=get_userprefs()
