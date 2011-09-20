@@ -41,7 +41,7 @@ class Admin(webapp.RequestHandler):
             tsu.put()
 
         def mtsu():
-            parm=self.request.path[12:16];
+            parm=self.request.path[12:16]
             if parm=="addt":#添加词库
                 tsun=self.request.get("tsuname")
                 if tsun!="":
@@ -51,7 +51,22 @@ class Admin(webapp.RequestHandler):
                     tsu.put()
 
         def chkw():#post
-            pass
+            rdkey=self.request.path[12:]
+            #取得删除的词
+            delw=db.get(self.request.get('delword'))
+            #取得替换的词
+            oldw=db.get(self.request.get('rudword'))
+            #删除重复的单词，还要修改词库引用关系
+            for tsu in delw.thesaurus:
+                gtsu=db.get(tsu)
+                gtsu.wordlist.remove(delw.key())
+                if tsu not in oldw.thesaurus:
+                    oldw.thesaurus.append(tsu)
+                    gtsu.wordlist.append(oldw.key())
+                gtsu.put()
+            oldw.put()
+            db.delete(delw)
+            db.delete(rdkey)
 
         parm=self.request.path[7:11]
         if parm=="addw":
@@ -61,6 +76,7 @@ class Admin(webapp.RequestHandler):
             mtsu()
             self.redirect('/admin.mtsu')
         elif parm=="chkw":
+            chkw()
             self.redirect('/admin.chkw')
         elif parm=="musr":
             self.redirect('/admin.musr')
@@ -101,8 +117,14 @@ class Admin(webapp.RequestHandler):
                 wl=db.get(rw[0].wordlist)
                 nw=db.get(db.Key(rw[0].newword))
                 tv={
+                        "rwkey":rw[0].key(),
                         "wordlist":wl,
-                        "newword":nw
+                        "newword":nw,
+                        "nordw":False
+                   }
+            else: 
+                tv={
+                        "nordw":True
                    }
             path=os.path.join(orig_path,'chkw.html')
             return template.render(path,tv)
