@@ -1,0 +1,20 @@
+<form action="/admin.mtsu.addt" method="post"> 
+  <div>
+    <input type="text" name="tsuname" />
+    <input type="submit" value="新建词库" />
+  </div>
+</form>
+<table>
+  <tr>
+    <th>库名</th>
+    <th>描述</th>
+    <th>单词列表</th>
+  </tr>
+  {% for tsu in Tsus %} 
+  <tr>
+    <td>{{ tsu.name }}</td>
+    <td>{{ tsu.description }}</td>
+    <td><a href="/admin.mtsu.list/{{ tsu.key }}">查看</a></td>
+  </tr>
+  {% endfor %}
+</table>

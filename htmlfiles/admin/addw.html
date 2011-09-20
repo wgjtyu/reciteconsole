@@ -1,10 +1,19 @@
-        <form action="/admin.addw" method="post">
-            <div>
-                词库记录的格式为(每条记录占一行)<br>
-                word|n.解释
-            </div>
-            <div>
-                <textarea name="wordrecord" rows="5" cols="40"></textarea>
-            </div>
-            <div><input type="submit" value="添加"></div>
-        </form>
+<form action="/admin.addw" method="post">
+  <div>
+    <select name="tsukey">
+      {% for tsu in Tsus %}
+      <option value="{{ tsu.key }}">{{ tsu.name }}</option>
+      {% endfor %}
+  </select>
+  </div> 
+  <div>
+    词库记录的格式为(每条记录占一行)
+    word|n.解释
+  </div>
+  <div>
+    <textarea name="wordrecord" rows="25" cols="80"></textarea>
+  </div>
+  <div>
+    <input type="submit" value="添加">
+  </div>
+</form>

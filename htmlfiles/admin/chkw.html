@@ -1,0 +1,34 @@
+{% if nordw %}
+<p>太好了，没有重复词汇</p>
+{% else %}
+<form action="/admin.chkw/{{ rwkey }}" method="post">
+  <table>
+  <tr>
+    <th>拼写</th>
+    <th>意思</th>
+    <th>选项</th>
+  </tr>
+    <tr>
+      <td>{{ newword.eword }}</td>
+      <td>{{ newword.cword }}</td>
+      <td>
+        <input type="checkbox" name="delword" value="{{newword.key}}"/>删除
+        <a href="/admin.chgw/{{ newword.key }}">修改词义</a>
+        <input type="checkbox" name="rudword" value="{{newword.key}}"/>替换
+      </td>
+    </tr>
+    {% for w in wordlist %} 
+    <tr>
+      <td>{{ w.eword }}</td>
+      <td>{{ w.cword }}</td>
+      <td>
+        <input type="checkbox" name="delword" value="{{w.key}}"/>删除
+        <a href="/admin.chgw/{{ newword.key }}">修改词义</a>
+        <input type="checkbox" name="rudword" value="{{w.key}}"/>替换
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <input type="submit" value="保存修改">
+</form>
+{% endif %}

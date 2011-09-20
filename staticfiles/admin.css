@@ -31,3 +31,21 @@ ul#returnindex {style-type:none;width:90%;text-align:right;}
 #minitabs a.hover {
   color:#696;
 }
+table {
+  border-top:1px solid #999;
+  border-left:1px solid #999;
+}
+caption {
+  font-family:Arial,sans-serif;
+  color:#993333;
+  padding-bottom:6px;
+}
+th,td{
+  padding:10px;
+  border-right:1px solid #999;
+  border-bottom:1px solid #999;
+}
+th{
+  font-family:Verdana,sans-serif;
+  background:#ccc;
+}

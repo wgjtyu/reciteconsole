@@ -12,6 +12,14 @@ handlers:
   static_files: staticfiles/favicon.ico
   upload: staticfiles/favicon.ico
 
+- url: /addrcword
+  script: admin.py
+  login: admin
+
+- url: /chkrcword
+  script: admin.py
+  login: admin
+
 - url: /dailyjobs
   script: admin.py
   login: admin
@@ -19,6 +27,9 @@ handlers:
 - url: /admin.*
   script: admin.py
   login: admin
+
+- url: /api.*
+  script: api.py
 
 - url: /m.*
   script: mobile.py

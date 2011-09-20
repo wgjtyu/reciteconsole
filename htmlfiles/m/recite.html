@@ -1,6 +1,8 @@
         {% if noreciterecord %}
         <div>恭喜，没有可供测试的条目:-)</div>
-        <br>
+        <br/>
+        <div>可以去<a href="/m/user">个人页面</a>设置要测试的词库</div>
+        <br/>
         {% else %}
             <form action="/m/recite" method="post">
 	        {% for reciterecord in reciterecords %}

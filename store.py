@@ -16,6 +16,7 @@ class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
     tz_offset=db.IntegerProperty(default=8)   #时区
     reviewed=db.BooleanProperty()
+    tsus=db.ListProperty(db.Key)
     sendreviewmail=db.BooleanProperty(default=True) #是否发送复习提示邮件
     recitenum=db.IntegerProperty() #记住的单词数量
 
@@ -48,7 +49,11 @@ def get_userprefs(user_id=None):
             userprefs=UserPrefs(key_name=user_id)
     return userprefs
 
+class EWord(db.Model):
+    eword=db.StringProperty(multiline=False)#英文
+
 class WordItem(db.Model):
+    elink=db.ReferenceProperty(EWord)
     eword=db.StringProperty(multiline=False)#英文
     cword=db.StringProperty(multiline=False)#中文
     spell=db.StringProperty(multiline=False)#音标
@@ -67,6 +72,9 @@ class Thesaurus(db.Model):
     description=db.StringProperty()
     wordlist=db.ListProperty(db.Key)#单词列表
     updatelock=db.BooleanProperty()#更新锁定
+
+    #正在同步此词库的人数，为0时才可以更新词库
+    syncnum=db.IntegerProperty(default=0)
 
 class ReviewRecord(db.Model):
     witem=db.ReferenceProperty(WordItem)
@@ -91,15 +99,19 @@ class ReciteRecord(db.Model):
     recited=db.BooleanProperty()  #已经记住?
     rtotal=db.IntegerProperty()   #总共测试次数
     rfailure=db.IntegerProperty() #测试中失败的次数
-    def create(self,worditem):
+    def create_w(self,worditem):
+        self.create_w_u(worditem,users.get_current_user())
+
+    def create_w_u(self,worditem,user):
         self.witem=worditem.key()
-        self.user=users.get_current_user()
+        self.user=user
         self.rp=0.0
         self.recitedate=get_user_date()
         self.reval=2
         self.rtotal=0
         self.rfailure=0
         self.put()
+
     def set(self,delta):
         user_prefs=get_userprefs(self.user.user_id())
         self.rp=self.rp*0.7+0.3*delta
@@ -134,3 +146,7 @@ class LastRecite(db.Model):
 class Sentence(db.Model):
     content=db.StringProperty(multiline=False)#英文
     translation=db.StringProperty(multiline=False)#中文
+
+class ReduplicateWord(db.Model):
+    newword=db.StringProperty(db.Key)
+    wordlist=db.ListProperty(db.Key)#单词列表

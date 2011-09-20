@@ -20,39 +20,114 @@ class Admin(webapp.RequestHandler):
     def post(self):
         def addw():
             wordset=self.request.get('wordrecord')
-            l=0
             if wordset.__len__()==0:
-                self.redirect('/admin')
+                self.response.out.write('none word')
+                self.redirect('/admin.addw')
+            tsu=db.get(self.request.get('tsukey'))
             worditems=wordset.split('\n')
             for i in worditems:
                 w=i.split('|')
                 if w.__len__()!=2:
-                    break
+                    continue
                 worditem=WordItem()
                 worditem.eword=w[0]
                 worditem.cword=w[1]
                 worditem.addby=users.get_current_user()
+                worditem.thesaurus.append(tsu.key())
                 worditem.put()
+                tsu.wordlist.append(worditem.key())
+            tsu.updatelock=True
+            taskqueue.add(url='/chkrcword',params={'thesaurus':tsu.key()})
+            tsu.put()
 
-        parm=self.request.path[7:]
+        def mtsu():
+            parm=self.request.path[12:16]
+            if parm=="addt":#添加词库
+                tsun=self.request.get("tsuname")
+                if tsun!="":
+                    tsu=Thesaurus()
+                    tsu.name=tsun
+                    tsu.updatelock=True
+                    tsu.put()
+
+        def chkw():#post
+            rdkey=self.request.path[12:]
+            #取得删除的词
+            delw=db.get(self.request.get('delword'))
+            #取得替换的词
+            oldw=db.get(self.request.get('rudword'))
+            #删除重复的单词，还要修改词库引用关系
+            for tsu in delw.thesaurus:
+                gtsu=db.get(tsu)
+                gtsu.wordlist.remove(delw.key())
+                if tsu not in oldw.thesaurus:
+                    oldw.thesaurus.append(tsu)
+                    gtsu.wordlist.append(oldw.key())
+                gtsu.put()
+            oldw.put()
+            db.delete(delw)
+            db.delete(rdkey)
+
+        parm=self.request.path[7:11]
         if parm=="addw":
             addw()
             self.redirect('/admin.addw')
         elif parm=="mtsu":
+            mtsu()
             self.redirect('/admin.mtsu')
         elif parm=="chkw":
+            chkw()
             self.redirect('/admin.chkw')
         elif parm=="musr":
             self.redirect('/admin.musr')
+        #self.redirect(self.request.uri)
 
     def get(self):
         def addw():
-            tv={}
+            tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+            tv={
+                    "Tsus":tsus
+                }
             path=os.path.join(orig_path,'addw.html')
             return template.render(path,tv)
 
         def mtsu():
-            tsu=db.GqlQuery("SELECT * FROM Thesaurus")
+            #TODO:显示单词列表
+            parm=self.request.path[12:16]
+            if parm=="list":
+                tsukey=self.request.path[17:]
+                tsus=db.get(tsukey)
+                wl=db.get(tsus.wordlist)
+                tv={
+                        "wordlist":wl
+                   }
+                path=os.path.join(orig_path,'mtsu.list.html')
+                return template.render(path,tv)
+            tsus=db.GqlQuery("SELECT * FROM Thesaurus")
+            tv={
+                    "Tsus":tsus
+               }
+            path=os.path.join(orig_path,'mtsu.html')
+            return template.render(path,tv)
+
+        def chkw():
+            query=ReduplicateWord.all()
+            rw=query.fetch(1)
+            if len(rw)==1:
+                wl=db.get(rw[0].wordlist)
+                nw=db.get(db.Key(rw[0].newword))
+                tv={
+                        "rwkey":rw[0].key(),
+                        "wordlist":wl,
+                        "newword":nw,
+                        "nordw":False
+                   }
+            else: 
+                tv={
+                        "nordw":True
+                   }
+            path=os.path.join(orig_path,'chkw.html')
+            return template.render(path,tv)
 
         def stat():
             stat_items=memcache.get_stats().iteritems()
@@ -66,15 +141,15 @@ class Admin(webapp.RequestHandler):
             return template.render(path,tv)
 
         path=os.path.join(orig_path,'index.html')
-        parm=self.request.path[7:]
+        parm=self.request.path[7:11]
         if parm=="addw":
             body=addw()
         elif parm=="mtsu":
-            body=NONE
+            body=mtsu()
         elif parm=="chkw":
-            body=NONE
+            body=chkw()
         elif parm=="musr":
-            body=NONE
+            body=None
         else:
             body=stat()
         tv={
@@ -121,8 +196,40 @@ class DailyJobs(webapp.RequestHandler):
         logging.info('Totally deleted %d review logs.' % num)
         self.response.out.write('Deleted %d logs.' % num)
 
+class AddRcWord(webapp.RequestHandler):
+    def post(self):
+        #从email构造出User对象
+        user=users.User(self.request.get('user_email'))
+        tsu=db.get(self.request.get('tsukey'))
+        log="Add %s to %s 's ReciteRecord" % (tsu.name,user.email())
+        logging.info(log)
+        self.response.out.write(log)
+        #def work():
+        for w in tsu.wordlist:
+            reciterecords=ReciteRecord.gql('WHERE user=:1 and witem=:2',user,w)
+            if reciterecords.count()==0:
+                # w not in user's reciterecords,insert w into user's reciterecords
+                reciterecord=ReciteRecord()
+                reciterecord.create_w_u(db.get(w),user)
+        #db.run_in_transaction(work)
+
+class ChkRcWord(webapp.RequestHandler):#检查词库中单词是否有重复
+    def post(self):
+        tsu=db.get(self.request.get('thesaurus'))
+        for w in tsu.wordlist:
+            #TODO:这里对数据库调用次数太多，可以一次性get整个列表
+            word=db.get(w)
+            witems=WordItem.gql('WHERE eword=:1',word.eword)
+            if witems.count()!=1:
+                r=ReduplicateWord()
+                r.newword=str(word.key())
+                for witem in witems:
+                    if witem.key()!=word.key():
+                        r.wordlist.append(witem.key())
+                r.put()
+
 def main():
-    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs)],debug=True)
+    app=webapp.WSGIApplication([('/admin.*',Admin),('/dailyjobs',DailyJobs),('/addrcword',AddRcWord),('/chkrcword',ChkRcWord)],debug=True)
     util.run_wsgi_app(app)
 
 if __name__=='__main__':

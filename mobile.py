@@ -1,19 +1,4 @@
-#!/usr/bin/env python
 # -*- coding:utf8 -*-
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 #
 import cgi
 import datetime
@@ -21,6 +6,7 @@ import os
 from store import *
 from generic import *
 from google.appengine.api import users
+from google.appengine.api import taskqueue
 from google.appengine.api import urlfetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -93,6 +79,12 @@ class UserInfo(webapp.RequestHandler):
             sendreviewmail=True
         else:
             sendreviewmail=False
+        tsus=self.request.get_all('thesaurus')
+        for tsu in tsus:
+            #对于用户勾选的词库，后台添加对应词库中的单词至用户的ReciteRecord中
+            taskqueue.add(url='/addrcword',params={'tsukey':tsu,'user_email':userprefs.user.email()})
+            key=db.Key(tsu)
+            userprefs.tsus.append(key)
         userprefs.sendreviewmail=sendreviewmail
         userprefs.put()
         self.redirect('/m')
@@ -109,14 +101,21 @@ class UserInfo(webapp.RequestHandler):
             rvmail='checked'
         else:
             rvmail=''
-        if not user_prefs.recitenum:
+        if user_prefs.recitenum==None:
             user_prefs.recitenum=0
             user_prefs.put()
-        recitenum=user_prefs.recitenum
+        tsus=db.GqlQuery("SELECT * FROM Thesaurus")#返回的tsus没有remove方法
+        tsukeys=[str(i.key()) for i in tsus]
+        if len(user_prefs.tsus)!=0:
+            for tsu in user_prefs.tsus:
+                if str(tsu) in tsukeys:
+                    tsukeys.remove(str(tsu))#删除那些已经被用户选过的tsu
+        tsus=db.get(tsukeys)#重新获取tsus
         tv={
             'tz_offset':tz_offset,
             'rvmail':rvmail,
-            'recitenum':user_prefs.recitenum
+            'recitenum':user_prefs.recitenum,
+            'tsus':tsus
         }
         self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
@@ -137,23 +136,23 @@ class Recite(webapp.RequestHandler):
     def get(self):
         self.response.out.write(GetHead())
         reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
-        if reciterecords.count()==0:
-            wordquery=WordItem.all()
-            i=5
-            for word in wordquery:
-                if i==0:
-                    break
-                if word.reciterecord_set.count()!=0:
-                    unrecite=True
-                    for wrc in word.reciterecord_set:
-                        if wrc.user==users.get_current_user():
-                            unrecite=False
-                            break
-                if word.reciterecord_set.count()==0 or unrecite:
-                    reciterecord=ReciteRecord()
-                    reciterecord.create(word)
-                    i=i-1
-            reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
+        #if reciterecords.count()==0:
+        #    wordquery=WordItem.all()
+        #    i=5
+        #    for word in wordquery:
+        #        if i==0:
+        #            break
+        #        if word.reciterecord_set.count()!=0:
+        #            unrecite=True
+        #            for wrc in word.reciterecord_set:
+        #                if wrc.user==users.get_current_user():
+        #                    unrecite=False
+        #                    break
+        #        if word.reciterecord_set.count()==0 or unrecite:
+        #            reciterecord=ReciteRecord()
+        #            reciterecord.create_w(word)
+        #            i=i-1
+        #    reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         noreciterecord=False
         if reciterecords.count()==0:
             noreciterecord=True

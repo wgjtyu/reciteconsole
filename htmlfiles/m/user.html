@@ -2,13 +2,26 @@
   记住的单词: {{recitenum}}
 </div>
 <form action="/m/user" method="post">
-    <div>
-        设置您的时区:
-        <input type="text" name="timezone" value='{{tz_offset}}'>
-    </div>
-    <div>
-        接收复习邮件
-        <input type="checkbox" name="rvmail" value='rvmail' {{rvmail}}>
-    </div>
-    <input type="submit" value="保存个人设置">
+  <div>
+    设置您的时区:
+    <input type="text" name="timezone" value='{{tz_offset}}'>
+  </div>
+  <div>
+    接收复习邮件
+    <input type="checkbox" name="rvmail" value='rvmail' {{rvmail}}>
+  </div> 
+  <br />
+  <div>
+    选择要记忆的词库:
+    {% for tsu in tsus %}
+    {% if not tsu.updatelock %}
+    <tr>
+      <td>{{tsu.name}}</td>
+      <td><input type="checkbox" name="thesaurus" value="{{tsu.key}}"/></td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <br />
+  <input type="submit" value="保存个人设置">
 </form>
