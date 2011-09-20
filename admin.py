@@ -51,6 +51,13 @@ class Admin(webapp.RequestHandler):
                     tsu.put()
 
         def chkw():#post
+            parm=self.request.path[12:16]
+            if parm=="chgw":
+                wkey=self.request.path[17:]
+                witem=db.get(wkey)
+                witem.cword=self.request.get('cword')
+                witem.put()
+                return
             rdkey=self.request.path[12:]
             #取得删除的词
             delw=db.get(self.request.get('delword'))
@@ -111,6 +118,15 @@ class Admin(webapp.RequestHandler):
             return template.render(path,tv)
 
         def chkw():
+            parm=self.request.path[12:16]
+            if parm=="chgw":
+                wkey=self.request.path[17:]
+                witem=db.get(wkey)
+                tv={
+                        'witem':witem
+                    }
+                path=os.path.join(orig_path,'chkw.chgw.html')
+                return template.render(path,tv)
             query=ReduplicateWord.all()
             rw=query.fetch(1)
             if len(rw)==1:

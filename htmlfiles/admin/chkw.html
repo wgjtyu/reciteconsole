@@ -12,8 +12,8 @@
       <td>{{ newword.eword }}</td>
       <td>{{ newword.cword }}</td>
       <td>
-        <input type="checkbox" name="delword" value="{{newword.key}}"/>删除
-        <a href="/admin.chgw/{{ newword.key }}">修改词义</a>
+        <input type="checkbox" name="delword" value="{{newword.key}}" checked="checked"/>删除
+        <a href="/admin.chkw.chgw/{{ newword.key }}">修改词义</a>
         <input type="checkbox" name="rudword" value="{{newword.key}}"/>替换
       </td>
     </tr>
@@ -23,8 +23,8 @@
       <td>{{ w.cword }}</td>
       <td>
         <input type="checkbox" name="delword" value="{{w.key}}"/>删除
-        <a href="/admin.chgw/{{ newword.key }}">修改词义</a>
-        <input type="checkbox" name="rudword" value="{{w.key}}"/>替换
+        <a href="/admin.chkw.chgw/{{ w.key }}">修改词义</a>
+        <input type="checkbox" name="rudword" value="{{w.key}}" checked="checked"/>替换
       </td>
     </tr>
     {% endfor %}
