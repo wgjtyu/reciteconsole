@@ -49,6 +49,9 @@ class Admin(webapp.RequestHandler):
                     tsu.name=tsun
                     tsu.updatelock=True
                     tsu.put()
+            elif parm=="chkw":#核对单词
+                tsun=self.request.path[17:]
+                taskqueue.add(url='/chkrcword',params={'thesaurus':tsun})
 
         def chkw():#post
             parm=self.request.path[12:16]
