@@ -37,7 +37,6 @@ class Admin(webapp.RequestHandler):
                 worditem.put()
                 tsu.wordlist.append(worditem.key())
             tsu.updatelock=True
-            taskqueue.add(url='/chkrcword',params={'thesaurus':tsu.key()})
             tsu.put()
 
         def mtsu():
@@ -49,9 +48,6 @@ class Admin(webapp.RequestHandler):
                     tsu.name=tsun
                     tsu.updatelock=True
                     tsu.put()
-            elif parm=="chkw":#核对单词
-                tsun=self.request.path[17:]
-                taskqueue.add(url='/chkrcword',params={'thesaurus':tsun})
 
         def chkw():#post
             parm=self.request.path[12:16]
@@ -113,6 +109,11 @@ class Admin(webapp.RequestHandler):
                    }
                 path=os.path.join(orig_path,'mtsu.list.html')
                 return template.render(path,tv)
+            elif parm=="chkw":#核对单词
+                tsun=self.request.path[17:]
+                taskqueue.add(url='/chkrcword',params={'thesaurus':tsun})
+                self.redirect('/admin.mtsu')
+
             tsus=db.GqlQuery("SELECT * FROM Thesaurus")
             tv={
                     "Tsus":tsus
