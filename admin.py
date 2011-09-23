@@ -58,20 +58,30 @@ class Admin(webapp.RequestHandler):
                 witem.put()
                 return
             rdkey=self.request.path[12:]
-            #取得删除的词
-            delw=db.get(self.request.get('delword'))
+            #取得新添加的重复词
+            rudk=self.request.get('rudword')
             #取得替换的词
-            oldw=db.get(self.request.get('rudword'))
+            oldk=self.request.get('oldword')
+            [rudw,oldw]=db.get([rudk,oldk])
+            #取得删除的词
+            delks=self.request.get_all('delword')
+            delws=db.get(delks)
+            for delw in delws:
+                reciterecords=ReciteRecord.gql('WHERE witem=:1',delw)
+                reviewrecords=ReviewRecord.gql('WHERE witem=:1',delw)
+                db.delete(reciterecords)
+                db.delete(reviewrecords)
+                db.delete(delw)
             #删除重复的单词，还要修改词库引用关系
-            for tsu in delw.thesaurus:
+            for tsu in rudw.thesaurus:
                 gtsu=db.get(tsu)
-                gtsu.wordlist.remove(delw.key())
+                gtsu.wordlist.remove(rudw.key())
                 if tsu not in oldw.thesaurus:
                     oldw.thesaurus.append(tsu)
                     gtsu.wordlist.append(oldw.key())
                 gtsu.put()
             oldw.put()
-            db.delete(delw)
+            db.delete(rudw)
             db.delete(rdkey)
 
         parm=self.request.path[7:11]
