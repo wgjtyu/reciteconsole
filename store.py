@@ -27,6 +27,17 @@ class UserPrefs(db.Model):
         self.cache_set()
         db.Model.put(self)
 
+class User(db.Model):
+    user=db.UserProperty(required=True)
+
+def get_user_id_from_email(address):
+    """ Return a stable user_id string based on an email address, or None if
+        the address is not a valid/existing google account. """
+    u = users.User(address)
+    key = User(user=u).put()
+    obj = User.get(key)
+    return obj.user.user_id()
+
 def get_user_date(user_id=None):
     userprefs=get_userprefs(user_id)
     now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
@@ -106,7 +117,8 @@ class ReciteRecord(db.Model):
         self.witem=worditem.key()
         self.user=user
         self.rp=0.0
-        self.recitedate=get_user_date()
+        user_id=get_user_id_from_email(user.email())
+        self.recitedate=get_user_date(user_id)
         self.reval=2
         self.rtotal=0
         self.rfailure=0

@@ -232,7 +232,6 @@ class AddRcWord(webapp.RequestHandler):
         user=users.User(self.request.get('user_email'))
         tsu=db.get(self.request.get('tsukey'))
         log="Add %s to %s 's ReciteRecord" % (tsu.name,user.email())
-        logging.info(log)
         self.response.out.write(log)
         #def work():
         for w in tsu.wordlist:
