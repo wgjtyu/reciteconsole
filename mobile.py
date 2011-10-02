@@ -135,7 +135,7 @@ class Recite(webapp.RequestHandler):
     @login_required
     def get(self):
         self.response.out.write(GetHead())
-        reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
+        reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 ORDER BY recitedate DESC,rp DESC limit 5',users.get_current_user(),get_user_date())
         #if reciterecords.count()==0:
         #    wordquery=WordItem.all()
         #    i=5

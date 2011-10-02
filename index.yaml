@@ -15,6 +15,14 @@ indexes:
   - name: user
   - name: recitedate
 
+- kind: ReciteRecord
+  properties:
+  - name: user
+  - name: recitedate
+    direction: desc
+  - name: rp
+    direction: desc
+
 - kind: ReviewRecord
   properties:
   - name: reviewed
