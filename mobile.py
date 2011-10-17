@@ -82,7 +82,7 @@ class UserInfo(webapp.RequestHandler):
         tsus=self.request.get_all('thesaurus')
         for tsu in tsus:
             #对于用户勾选的词库，后台添加对应词库中的单词至用户的ReciteRecord中
-            taskqueue.add(url='/addrcword',params={'tsukey':tsu,'user_email':userprefs.user.email()})
+            taskqueue.add(url='/addrcword',params={'tsukey':tsu,'user_email':userprefs.user.email(),'user_id':userprefs.user.user_id()})
             key=db.Key(tsu)
             userprefs.tsus.append(key)
         userprefs.sendreviewmail=sendreviewmail
@@ -243,7 +243,7 @@ class Query(webapp.RequestHandler):
                 for wi in worditems:
                     if ReciteRecord.gql('WHERE witem=:1 AND user=:2',wi,loginuser).count()==0:#不存在于记忆库中
                         reciterecord=ReciteRecord()
-                        reciterecord.create_w_u(wi,loginuser)
+                        reciterecord.create_w_u(wi,loginuser,loginuser.user_id())
         else:
             tv={}
         path=os.path.join(orig_path,'query.html')

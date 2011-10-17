@@ -30,14 +30,6 @@ class UserPrefs(db.Model):
 class User(db.Model):
     user=db.UserProperty(required=True)
 
-def get_user_id_from_email(address):
-    """ Return a stable user_id string based on an email address, or None if
-        the address is not a valid/existing google account. """
-    u = users.User(address)
-    key = User(user=u).put()
-    obj = User.get(key)
-    return obj.user.user_id()
-
 def get_user_date(user_id=None):
     userprefs=get_userprefs(user_id)
     now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
@@ -113,14 +105,15 @@ class ReciteRecord(db.Model):
 
     #将单词添加至登录用户的记忆库
     def create_w(self,worditem):
-        self.create_w_u(worditem,users.get_current_user())
+        user=users.get_current_user()
+        self.create_w_u(worditem,user,user.user_id())
 
     #将单词添加至指定用户的记忆库
-    def create_w_u(self,worditem,user):
+    def create_w_u(self,worditem,user,user_id):
         self.witem=worditem.key()
         self.user=user
         self.rp=0.0
-        user_id=get_user_id_from_email(user.email())
+        #user_id=get_user_id_from_email(user.email())
         self.recitedate=get_user_date(user_id)
         self.reval=2
         self.rtotal=0

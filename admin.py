@@ -229,6 +229,7 @@ class AddRcWord(webapp.RequestHandler):
     def post(self):
         #从email构造出User对象
         user=users.User(self.request.get('user_email'))
+        user_id=self.request.get('user_id')
         tsu=db.get(self.request.get('tsukey'))
         log="Add %s to %s 's ReciteRecord" % (tsu.name,user.email())
         self.response.out.write(log)

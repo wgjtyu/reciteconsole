@@ -3,12 +3,15 @@
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
   </head>
   <body>
-    {% if wis %}
+    {% if wis.count %}
     {% for wi in wis %}
     <div>{{ wi.eword }}</div>
     <div>{{ wi.cword }}</div>
     <br/>
     {% endfor %}
+    {% else %}
+    <div>未找到该单词</div>
+    <br/>
     {% endif %}
     <form action="query" method="get">
       <div><input type="text" name="queryword"/></div>
