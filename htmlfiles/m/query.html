@@ -1,24 +1,22 @@
 <html>
-    <head>
-	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
-    </head>
-    <body>
-	{% for greeting in greetings %}
-	    {% if greeting.author %}
-		<b>{{ greeting.author.nickname }}</b> wrote:
-	    {% else %}
-	    An anonymous person wrote:
-	    {% endif %}
-	    <blockquote>{{ greeting.content|escape }}</blockquote>
-	{% endfor %}
-
-	<form action="/query" method="post">
-	    <div><textarea name="content" rows="2" cols="10"></textarea></div>
-	    <div><input type="submit" value="查询"></div>
-	</form>
-        <a href="/">首页</a>
-        <a href="/recite">测试</a>
-        <a href="/review">复习</a>
-	<a href="{{ url }}">{{ url_linktext }}</a>
-    </body>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
+  </head>
+  <body>
+    {% if wis %}
+    {% for wi in wis %}
+    <div>{{ wi.eword }}</div>
+    <div>{{ wi.cword }}</div>
+    <br/>
+    {% endfor %}
+    {% endif %}
+    <form action="query" method="get">
+      <div><input type="text" name="queryword"/></div>
+      <div><input type="submit" value="查询"></div>
+    </form>
+    <a href="/">首页</a>
+    <a href="/recite">测试</a>
+    <a href="/review">复习</a>
+    <a href="{{ url }}">{{ url_linktext }}</a>
+  </body>
 </html>

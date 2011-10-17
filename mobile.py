@@ -229,10 +229,25 @@ class GuestBook(webapp.RequestHandler):
         self.response.out.write(GetBottom(self.request.uri))
 
 class Query(webapp.RequestHandler):
+    @login_required
     def get(self):
-        if not users.get_current_user():
-            self.redirect('/m')
         self.response.out.write(GetHead())
+        queryword=self.request.get('queryword')
+        if queryword:
+            worditems=WordItem.gql('WHERE eword=:1',queryword)
+            tv= {
+                    "wis":worditems
+                }
+            loginuser=users.get_current_user()
+            if loginuser:#若用户登录，将单词添加至记忆库中
+                for wi in worditems:
+                    if ReciteRecord.gql('WHERE witem=:1 AND user=:2',wi,loginuser).count()==0:#不存在于记忆库中
+                        reciterecord=ReciteRecord()
+                        reciterecord.create_w_u(wi,loginuser)
+        else:
+            tv={}
+        path=os.path.join(orig_path,'query.html')
+        self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
 
 class Help(webapp.RequestHandler):

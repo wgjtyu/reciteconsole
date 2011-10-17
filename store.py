@@ -110,9 +110,12 @@ class ReciteRecord(db.Model):
     recited=db.BooleanProperty()  #已经记住?
     rtotal=db.IntegerProperty()   #总共测试次数
     rfailure=db.IntegerProperty() #测试中失败的次数
+
+    #将单词添加至登录用户的记忆库
     def create_w(self,worditem):
         self.create_w_u(worditem,users.get_current_user())
 
+    #将单词添加至指定用户的记忆库
     def create_w_u(self,worditem,user):
         self.witem=worditem.key()
         self.user=user

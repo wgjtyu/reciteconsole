@@ -108,7 +108,6 @@ class Admin(webapp.RequestHandler):
             return template.render(path,tv)
 
         def mtsu():
-            #TODO:显示单词列表
             parm=self.request.path[12:16]
             if parm=="list":
                 tsukey=self.request.path[17:]
