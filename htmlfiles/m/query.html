@@ -1,8 +1,4 @@
 <html>
-  <head>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
-  </head>
-  <body>
     {% if wis.count %}
     {% for wi in wis %}
     <div>{{ wi.eword }}</div>
@@ -10,16 +6,12 @@
     <br/>
     {% endfor %}
     {% else %}
+      {%if not noquery %}
     <div>未找到该单词</div>
     <br/>
+      {% endif %}
     {% endif %}
     <form action="query" method="get">
       <div><input type="text" name="queryword"/></div>
       <div><input type="submit" value="查询"></div>
     </form>
-    <a href="/">首页</a>
-    <a href="/recite">测试</a>
-    <a href="/review">复习</a>
-    <a href="{{ url }}">{{ url_linktext }}</a>
-  </body>
-</html>

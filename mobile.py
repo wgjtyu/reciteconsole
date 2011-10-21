@@ -245,7 +245,9 @@ class Query(webapp.RequestHandler):
                         reciterecord=ReciteRecord()
                         reciterecord.create_w_u(wi,loginuser,loginuser.user_id())
         else:
-            tv={}
+            tv={
+                    "noquery":True
+                }
         path=os.path.join(orig_path,'query.html')
         self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
