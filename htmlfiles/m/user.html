@@ -10,6 +10,7 @@
     接收复习邮件
     <input type="checkbox" name="rvmail" value='rvmail' {{rvmail}}>
   </div> 
+  {% if tsus %}
   <br />
   <div>
     选择要记忆的词库:
@@ -22,6 +23,7 @@
     {% endif %}
     {% endfor %}
   </div>
+  {% endif %}
   <br />
   <input type="submit" value="保存个人设置">
 </form>
