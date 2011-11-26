@@ -36,10 +36,19 @@ def GetBottom(requesturi):
         now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userprefs.tz_offset)
         now=now.strftime('%Y-%m-%d %X')
         url=users.create_logout_url(requesturi)
+
         reciterecords=ReciteRecord.gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
-        rcnum=reciterecords.count()
+        if len(reciterecords.fetch(51))==51:
+            rcnum="50+"
+        else:
+            rcnum=reciterecords.count()
+
         reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",users.get_current_user(),get_user_date())
-        rvnum=reviewrecords.count()
+        if len(reviewrecords.fetch(51))==51:
+            rvnum="50+"
+        else:
+            rvnum=reviewrecords.count()
+
         if users.is_current_user_admin():
             useradmin=True
     else:
@@ -193,7 +202,7 @@ class Review(webapp.RequestHandler):
                     i.witem.spell='None'
                 i.witem.put()
             i.put()
-        if reviewrecords.count()==0:
+        if len(reviewrecords.fetch(1))==0:
             noreviewrecord=True
         tv= {
             "noreviewrecord":noreviewrecord,
