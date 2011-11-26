@@ -115,7 +115,8 @@ class UserInfo(webapp.RequestHandler):
             'tz_offset':tz_offset,
             'rvmail':rvmail,
             'recitenum':user_prefs.recitenum,
-            'tsus':tsus
+            'tsus':tsus,
+            'uid':user.user_id()
         }
         self.response.out.write(template.render(path,tv))
         self.response.out.write(GetBottom(self.request.uri))
@@ -154,7 +155,7 @@ class Recite(webapp.RequestHandler):
         #            i=i-1
         #    reciterecords=ReciteRecord().gql('WHERE user=:1 and recitedate<=:2 limit 5',users.get_current_user(),get_user_date())
         noreciterecord=False
-        if reciterecords.count()==0:
+        if len(reciterecords.fetch(1))==0:
             noreciterecord=True
         tv= {
             "noreciterecord":noreciterecord,

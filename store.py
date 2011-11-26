@@ -14,6 +14,7 @@ class HelpMSG(db.Model):
 #用来保存用户配置数据
 class UserPrefs(db.Model):
     user=db.UserProperty(auto_current_user_add=True)
+    user_id=db.StringProperty(multiline=False)
     tz_offset=db.IntegerProperty(default=8)   #时区
     reviewed=db.BooleanProperty()
     tsus=db.ListProperty(db.Key)
@@ -24,6 +25,8 @@ class UserPrefs(db.Model):
         memcache.set(self.key().name(),self,namespace=self.key().kind())
 
     def put(self):
+        if not self.user_id:
+            self.user_id=self.user.user_id()
         self.cache_set()
         db.Model.put(self)
 

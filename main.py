@@ -36,8 +36,30 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.redirect('/m')
 
+class ReviewRss(webapp.RequestHandler):
+    def get(self):
+        self.response.headers['Content-Type']="text/xml"
+        uid=self.request.path[4:-4]
+        userprefs=UserPrefs.gql("WHERE user_id=:1",uid).fetch(1)
+        if len(userprefs)==1:
+            userpref=userprefs[0]
+        else:
+            return
+        #get review records
+        reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",userpref.user,get_user_date(user_id=uid))
+        now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userpref.tz_offset)
+        now=now.strftime('%Y-%m-%d %X')
+        tv= {
+            'FeedTitle':'%s 的复习记录'.decode('utf8') % userpref.user.nickname(),
+            'EntryTitle':get_user_date(uid).strftime('%Y-%m-%d'),
+            'reviewrecords':reviewrecords,
+            'nowtime':now
+        }
+        path=os.path.join(orig_path,'review.rss')
+        self.response.out.write(template.render(path,tv))
+
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)], debug=True)
+    application = webapp.WSGIApplication([('/', MainHandler),('/rv/.*.rss',ReviewRss)], debug=True)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':
