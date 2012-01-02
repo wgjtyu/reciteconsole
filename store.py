@@ -157,6 +157,10 @@ class LastRecite(db.Model):
 class Sentence(db.Model):
     content=db.StringProperty(multiline=False)#英文
     translation=db.StringProperty(multiline=False)#中文
+    passage=db.ReferenceProperty(Passage)#对应的文章
+
+class Passage(db.Model):
+    content=db.TextProperty(multiline=False)#英文
 
 class ReduplicateWord(db.Model):
     newword=db.StringProperty(db.Key)
