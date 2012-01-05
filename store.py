@@ -21,6 +21,9 @@ class UserPrefs(db.Model):
     sendreviewmail=db.BooleanProperty(default=True) #是否发送复习提示邮件
     recitenum=db.IntegerProperty() #记住的单词数量
 
+    def __unicode__(self):
+        return self.user.nickname()
+
     def cache_set(self):
         memcache.set(self.key().name(),self,namespace=self.key().kind())
 
@@ -72,6 +75,9 @@ class WordItem(db.Model):
     adddate=db.DateTimeProperty(auto_now_add=True)
     addby=db.UserProperty()
     sentence=db.ListProperty(db.Key)#指向包含此单词的句子
+
+    def __unicode__(self):
+        return self.eword+':'+self.cword
 
 class Thesaurus(db.Model):
     name=db.StringProperty(multiline=False)
