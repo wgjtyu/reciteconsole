@@ -58,6 +58,14 @@ def get_userprefs(user_id=None):
             userprefs=UserPrefs(key_name=user_id)
     return userprefs
 
+class Passage(db.Model):
+    content=db.TextProperty()#英文
+
+class Sentence(db.Model):
+    content=db.StringProperty(multiline=False)#英文
+    translation=db.StringProperty(multiline=False)#中文
+    passage=db.ReferenceProperty(Passage)#对应的文章
+
 class EWord(db.Model):
     eword=db.StringProperty(multiline=False)#英文
 
@@ -160,13 +168,6 @@ class LastRecite(db.Model):
     ritem=db.ReferenceProperty(ReciteRecord)
     user=db.UserProperty()
 
-class Sentence(db.Model):
-    content=db.StringProperty(multiline=False)#英文
-    translation=db.StringProperty(multiline=False)#中文
-    passage=db.ReferenceProperty(Passage)#对应的文章
-
-class Passage(db.Model):
-    content=db.TextProperty(multiline=False)#英文
 
 class ReduplicateWord(db.Model):
     newword=db.StringProperty(db.Key)

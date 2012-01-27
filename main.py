@@ -31,6 +31,8 @@ class ReviewRss(webapp.RequestHandler):
         else:
             return
         #get review records
+        userpref.reviewed=True
+        userpref.put()
         reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",userpref.user,get_user_date(user_id=uid))
         now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userpref.tz_offset)
         now=now.strftime('%Y-%m-%d %X')
