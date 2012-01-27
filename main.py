@@ -34,6 +34,8 @@ class ReviewRss(webapp.RequestHandler):
         userpref.reviewed=True
         userpref.put()
         reviewrecords=ReviewRecord.gql("WHERE user = :1 AND reviewdate <= :2",userpref.user,get_user_date(user_id=uid))
+        if len(reviewrecords)==0:#不存在今天的复习条目
+            return
         now=datetime.datetime.now()+datetime.timedelta(0,0,0,0,0,userpref.tz_offset)
         now=now.strftime('%Y-%m-%d %X')
         tv= {
