@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?> <rss version="0.92">
+<channel>
+	<title>{{ FeedTitle }}</title>
+	<link href="/m/review" />
+	<description> ReciteConsle 复习记录</description>
+	<lastBuildDate>{{ nowtime }}</lastBuildDate>
+	<docs>http://backend.userland.com/rss092</docs>
+	<language>cn</language>
+	<item>
+		<title>{{ EntryTitle }}</title>
+		<description>
+		<![CDATA[ {% for reviewrecord in reviewrecords %}
+			<div>{{ reviewrecord.witem.eword }}</div> 
+			<div>{{ reviewrecord.witem.cword }}</div>
+			<br/>
+		{% endfor %}]]>
+		</description>
+	</item>
+</channel>
+</rss>
